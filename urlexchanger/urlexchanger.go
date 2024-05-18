@@ -36,13 +36,13 @@ func (e *URLExchanger) GenerateQRCodeURL(originalURL string) string {
 	e.qrCodeURLs[uniqueID] = originalURL
 	e.mu.Unlock()
 	fmt.Println("list of QR Codes:", e.qrCodeURLs)
+	var link string
 	if server != "https://qr.lugetech.com" {
 		fmt.Println("Using local server with port, if this is running on the remote server it will not work")
-		link := fmt.Sprintf("%s:%s/qr?id=%s", server, port, uniqueID)
-		fmt.Println("link", link)
-		return link
+		link = fmt.Sprintf("%s:%s/qr?id=%s", server, port, uniqueID)
+	} else {
+		link = fmt.Sprintf("%s/qr?id=%s", server, uniqueID)
 	}
-	link := fmt.Sprintf("%s/qr?id=%s", server, uniqueID)
 	fmt.Println("link", link)
 
 	return link
