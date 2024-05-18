@@ -1,3 +1,4 @@
 .DS_Store
 tmp/main
 tmp/build-errors.log
+.env
