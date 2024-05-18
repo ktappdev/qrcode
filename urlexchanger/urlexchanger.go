@@ -1,0 +1,64 @@
+package urlexchanger
+
+import (
+	"fmt"
+	"net/http"
+	"os"
+	"sync"
+	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+)
+
+type URLExchanger struct {
+	mu         sync.RWMutex
+	qrCodeURLs map[string]string
+}
+
+func NewURLExchanger() *URLExchanger {
+	return &URLExchanger{
+		qrCodeURLs: make(map[string]string),
+	}
+}
+
+var port = os.Getenv("PORT")
+var server = os.Getenv("SERVER")
+
+func (e *URLExchanger) GenerateQRCodeURL(originalURL string) string {
+	uniqueID := uuid.New().String()
+
+	e.mu.Lock()
+	e.qrCodeURLs[uniqueID] = originalURL
+	e.mu.Unlock()
+	fmt.Println("list of QR Codes:", e.qrCodeURLs)
+	link := fmt.Sprintf("%s:%s/qr?id=%s", server, port, uniqueID)
+
+	return link
+}
+
+func (e *URLExchanger) HandleQRCodeInteraction(c *gin.Context) {
+	uniqueID := c.Query("id")
+
+	e.mu.RLock()
+	originalURL, exists := e.qrCodeURLs[uniqueID]
+	e.mu.RUnlock()
+
+	if !exists {
+		fmt.Printf("Not found %s", uniqueID)
+		c.Status(http.StatusNotFound)
+		return
+	}
+
+	e.logInteraction(uniqueID, c.Request)
+
+	c.Redirect(http.StatusFound, originalURL)
+}
+
+func (e *URLExchanger) logInteraction(uniqueID string, r *http.Request) {
+	timestamp := time.Now().Format(time.RFC3339)
+	userAgent := r.UserAgent()
+	ipAddress := r.RemoteAddr
+	// ... Log or store the interaction details ...
+	fmt.Printf("QR Code Interaction - ID: %s, Timestamp: %s, User Agent: %s, IP Address: %s", uniqueID, timestamp, userAgent, ipAddress)
+}
