@@ -1,11 +1,13 @@
 package main
 
 import (
+	"net/http"
+	"sync"
+
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/ktappdev/qrcode/qrcode"
 	"golang.org/x/time/rate"
-	"net/http"
-	"sync"
 )
 
 var limiter = NewIPRateLimiter(1)
@@ -13,13 +15,17 @@ var limiter = NewIPRateLimiter(1)
 func main() {
 	router := gin.Default()
 
+	config := cors.DefaultConfig()
+	config.AllowOrigins = []string{"*", "http://localhost:3000", "http://localhost:8081", "http://192.168.1.14"}
+	config.AllowMethods = []string{"GET"}
+	router.Use(cors.New(config))
 	router.GET("/qrcode", func(c *gin.Context) {
 		clientIP := c.ClientIP()
 		if !limiter.Allow(clientIP) {
 			c.String(http.StatusOK, "Slowdown cowboy!, %v request per second", limiter.rateLimit)
 			return
 		}
-		data := "https://www.maad97.com"
+		data := "https://www.lugetech.com"
 		size := -10 // -10 will make each qr pixel 10x10, i can do 256 which would give 256x256px image but there is usually white space around it
 
 		qrCodeBytes, err := qrcode.GenerateQRCode(data, size)
