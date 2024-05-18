@@ -35,7 +35,7 @@ func main() {
 	router.Use(cors.New(config))
 	router.GET("/qrcode", getQr)
 	router.GET("/qr", exchanger.HandleQRCodeInteraction)
-	router.Run(port)
+	router.Run(":" + port)
 }
 
 func getQr(c *gin.Context) {
