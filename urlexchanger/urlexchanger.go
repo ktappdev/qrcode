@@ -2,6 +2,7 @@ package urlexchanger
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"sync"
@@ -62,12 +63,12 @@ func (e *URLExchanger) HandleQRCodeInteraction(c *gin.Context) {
 	}
 
 	e.logInteraction(uniqueID, c.Request)
+	log.Println("this is the link returned", originalURL)
 
 	c.Redirect(http.StatusFound, originalURL)
 }
 
 func (e *URLExchanger) logInteraction(uniqueID string, r *http.Request) {
-	fmt.Println(r)
 	timestamp := time.Now().Format(time.RFC3339)
 	userAgent := r.UserAgent()
 	ipAddress := r.RemoteAddr
