@@ -7,7 +7,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-	"github.com/ktappdev/qrcode/urlexchanger"
+	"github.com/ktappdev/qrcode-server/urlexchanger"
 )
 
 var limiter = NewIPRateLimiter(1)

@@ -67,6 +67,7 @@ func (e *URLExchanger) HandleQRCodeInteraction(c *gin.Context) {
 }
 
 func (e *URLExchanger) logInteraction(uniqueID string, r *http.Request) {
+	fmt.Println(r)
 	timestamp := time.Now().Format(time.RFC3339)
 	userAgent := r.UserAgent()
 	ipAddress := r.RemoteAddr

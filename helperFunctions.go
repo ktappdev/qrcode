@@ -5,7 +5,7 @@ import (
 	"sync"
 
 	"github.com/gin-gonic/gin"
-	"github.com/ktappdev/qrcode/qrcode"
+	"github.com/ktappdev/qrcode-server/qrcode"
 	"golang.org/x/time/rate"
 )
 
@@ -44,7 +44,6 @@ func GetQr(c *gin.Context) {
 		c.String(http.StatusOK, "Slowdown cowboy!, %v request per second", limiter.rateLimit)
 		return
 	}
-	// data := "https://www.lugetech.com"
 	size := -10 // -10 will make each qr pixel 10x10, i can do 256 which would give 256x256px image but there is usually white space around it
 	originalURL := "https://www.wikipedia.org"
 	qrCodeURL := exchanger.GenerateQRCodeURL(originalURL)
