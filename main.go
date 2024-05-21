@@ -10,6 +10,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"github.com/ktappdev/qrcode-server/helpers"
 	"github.com/ktappdev/qrcode-server/qrcode"
 	"github.com/ktappdev/qrcode-server/ratelimiter"
 	"github.com/ktappdev/qrcode-server/urlexchanger"
@@ -58,8 +59,17 @@ func GetQr(c *gin.Context) {
 	if err != nil && err != http.ErrMissingFile {
 		log.Println("no logo", err)
 	}
-	log.Println("YES logo")
 
+	// Get the opacity from the form data
+	opacity := c.PostForm("opacity")
+
+	// Convert the opacity to a float64 using the utility function
+	opacityFloat64, err := helpers.ParseOpacity(opacity)
+	if err != nil {
+		log.Println("invalid opacity value:", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid opacity value"})
+		return
+	}
 	var logo *image.Image
 	if logoFile != nil {
 		file, err := logoFile.Open()
@@ -86,7 +96,7 @@ func GetQr(c *gin.Context) {
 	bgc := color.Black
 
 	qrCodeURL := exchanger.GenerateQRCodeURL(originalLink)
-	qrCodeBytes, err := qrcode.GenerateQRCode(qrCodeURL, size, fgc, bgc, logo)
+	qrCodeBytes, err := qrcode.GenerateQRCode(qrCodeURL, size, fgc, bgc, logo, opacityFloat64)
 	if err != nil {
 		c.String(http.StatusInternalServerError, "Error generating QR code")
 		return

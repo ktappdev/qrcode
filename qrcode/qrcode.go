@@ -6,11 +6,12 @@ import (
 	"image/color"
 	"image/png"
 
+	"github.com/ktappdev/qrcode-server/helpers"
 	"github.com/skip2/go-qrcode"
 )
 
-func GenerateQRCode(data string, size int, foregroundColor, backgroundColor color.Color, logo *image.Image) ([]byte, error) {
-	qr, err := qrcode.New(data, qrcode.Medium)
+func GenerateQRCode(data string, size int, foregroundColor, backgroundColor color.Color, logo *image.Image, opacity float64) ([]byte, error) {
+	qr, err := qrcode.New(data, qrcode.High) // NOTE: can also set Highest
 	if err != nil {
 		return nil, err
 	}
@@ -24,7 +25,7 @@ func GenerateQRCode(data string, size int, foregroundColor, backgroundColor colo
 
 	// Overlay the logo image if provided
 	if logo != nil {
-		overlayLogo(&qrImg, *logo)
+		helpers.OverlayLogo(&qrImg, *logo, opacity)
 	}
 
 	buf := &bytes.Buffer{}
@@ -34,8 +35,4 @@ func GenerateQRCode(data string, size int, foregroundColor, backgroundColor colo
 	}
 
 	return buf.Bytes(), nil
-}
-
-func overlayLogo(qrImg *image.Image, logo image.Image) {
-	// ... (the overlayLogo function remains the same)
 }
