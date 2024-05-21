@@ -56,12 +56,12 @@ func GetQr(c *gin.Context) {
 	// Get the logo image from the form data
 	logoFile, err := c.FormFile("logo")
 	if err != nil && err != http.ErrMissingFile {
-		log.Println(err)
+		log.Println("no logo", err)
 	}
+	log.Println("YES logo")
 
 	var logo *image.Image
 	if logoFile != nil {
-		// Open the logo file
 		file, err := logoFile.Open()
 		if err != nil {
 			c.String(http.StatusInternalServerError, "Failed to open logo file")
@@ -81,8 +81,8 @@ func GetQr(c *gin.Context) {
 		logo = cachedLogo
 	}
 
-	size := -10                                    // -10 will make each qr pixel 10x10, i can do 256 which would give 256x256px image but there is usually white space around it
-	fgc := color.RGBA{R: 255, G: 78, B: 0, A: 255} // Red color
+	size := -10        // -10 will make each qr pixel 10x10, i can do 256 which would give 256x256px image but there is usually white space around it
+	fgc := color.White //RGBA{R: 255, G: 0, B: 0, A: 255} // Red color
 	bgc := color.Black
 
 	qrCodeURL := exchanger.GenerateQRCodeURL(originalLink)
