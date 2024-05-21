@@ -42,6 +42,8 @@ func main() {
 	}
 
 	router := gin.Default()
+	// Set the maximum memory limit for parsing multipart forms
+	router.MaxMultipartMemory = 10 << 20 // 10MB
 
 	config := cors.DefaultConfig()
 	config.AllowOrigins = []string{"*", "http://localhost:3000", "http://localhost:8081", "https://592code.vercel.app"}
