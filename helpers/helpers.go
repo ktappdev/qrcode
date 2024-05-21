@@ -69,3 +69,40 @@ func OverlayLogo(qrImg *image.Image, logo image.Image, opacity float64) {
 	// Update the QR code image with the merged image
 	*qrImg = merged
 }
+
+var ColorMap = map[string]color.Color{
+	"red":       color.RGBA{R: 255, G: 0, B: 0, A: 255},
+	"green":     color.RGBA{R: 0, G: 255, B: 0, A: 255},
+	"blue":      color.RGBA{R: 0, G: 0, B: 255, A: 255},
+	"yellow":    color.RGBA{R: 255, G: 255, B: 0, A: 255},
+	"purple":    color.RGBA{R: 128, G: 0, B: 128, A: 255},
+	"orange":    color.RGBA{R: 255, G: 165, B: 0, A: 255},
+	"pink":      color.RGBA{R: 255, G: 192, B: 203, A: 255},
+	"brown":     color.RGBA{R: 165, G: 42, B: 42, A: 255},
+	"gray":      color.RGBA{R: 128, G: 128, B: 128, A: 255},
+	"black":     color.RGBA{R: 0, G: 0, B: 0, A: 255},
+	"white":     color.RGBA{R: 255, G: 255, B: 255, A: 255},
+	"turquoise": color.RGBA{R: 64, G: 224, B: 208, A: 255},
+	"indigo":    color.RGBA{R: 75, G: 0, B: 130, A: 255},
+	"maroon":    color.RGBA{R: 128, G: 0, B: 0, A: 255},
+	"lime":      color.RGBA{R: 0, G: 255, B: 0, A: 255},
+	"teal":      color.RGBA{R: 0, G: 128, B: 128, A: 255},
+}
+
+func SetColours(backgroundColour, qrCodeColour string) (bgc, qrc color.Color) {
+	bgc, ok := ColorMap[backgroundColour]
+	if !ok {
+		// Handle case when the background color name is not found in the map
+		// You can set a default color or return an error
+		bgc = ColorMap["white"]
+	}
+
+	qrc, ok = ColorMap[qrCodeColour]
+	if !ok {
+		// Handle case when the QR code color name is not found in the map
+		// You can set a default color or return an error
+		qrc = ColorMap["black"]
+	}
+
+	return bgc, qrc
+}

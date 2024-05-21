@@ -2,7 +2,6 @@ package main
 
 import (
 	"image"
-	"image/color"
 	"log"
 	"net/http"
 	"os"
@@ -52,7 +51,8 @@ func GetQr(c *gin.Context) {
 
 	// Get the original link from the form data
 	originalLink := c.PostForm("originalLink")
-	log.Println("Original link:", originalLink)
+	backgroundColour := c.PostForm("backgroundColour")
+	qrCodeColour := c.PostForm("qrCodeColour")
 
 	// Get the logo image from the form data
 	logoFile, err := c.FormFile("logo")
@@ -91,12 +91,9 @@ func GetQr(c *gin.Context) {
 		logo = cachedLogo
 	}
 
-	size := -10        // -10 will make each qr pixel 10x10, i can do 256 which would give 256x256px image but there is usually white space around it
-	fgc := color.White //RGBA{R: 255, G: 0, B: 0, A: 255} // Red color
-	bgc := color.Black
-
+	size := -10 // -10 will make each qr pixel 10x10, i can do 256 which would give 256x256px image but there is usually white space around it
 	qrCodeURL := exchanger.GenerateQRCodeURL(originalLink)
-	qrCodeBytes, err := qrcode.GenerateQRCode(qrCodeURL, size, fgc, bgc, logo, opacityFloat64)
+	qrCodeBytes, err := qrcode.GenerateQRCode(qrCodeURL, size, qrCodeColour, backgroundColour, logo, opacityFloat64)
 	if err != nil {
 		c.String(http.StatusInternalServerError, "Error generating QR code")
 		return

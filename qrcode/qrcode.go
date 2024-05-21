@@ -3,22 +3,22 @@ package qrcode
 import (
 	"bytes"
 	"image"
-	"image/color"
 	"image/png"
 
 	"github.com/ktappdev/qrcode-server/helpers"
 	"github.com/skip2/go-qrcode"
 )
 
-func GenerateQRCode(data string, size int, foregroundColor, backgroundColor color.Color, logo *image.Image, opacity float64) ([]byte, error) {
+func GenerateQRCode(data string, size int, qrCodeColour string, backgroundColour string, logo *image.Image, opacity float64) ([]byte, error) {
 	qr, err := qrcode.New(data, qrcode.High) // NOTE: can also set Highest
 	if err != nil {
 		return nil, err
 	}
+	bgc, qrc := helpers.SetColours(backgroundColour, qrCodeColour)
 
 	// Set the foreground and background colors
-	qr.ForegroundColor = foregroundColor
-	qr.BackgroundColor = backgroundColor
+	qr.ForegroundColor = qrc
+	qr.BackgroundColor = bgc
 
 	// Generate the QR code image
 	qrImg := qr.Image(size)
