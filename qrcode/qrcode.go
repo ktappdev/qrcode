@@ -10,9 +10,11 @@ import (
 )
 
 func GenerateQRCode(data string, size int, qrCodeColour string, backgroundColour string, logo *image.Image, opacity float64) ([]byte, error) {
-	qr, err := qrcode.New(data, qrcode.High) // NOTE: can also set Highest
-	if err != nil {
-		return nil, err
+	var qr *qrcode.QRCode
+	if logo != nil {
+		qr, _ = qrcode.New(data, qrcode.High) // NOTE: can also set Highest
+	} else {
+		qr, _ = qrcode.New(data, qrcode.Low)
 	}
 	bgc, qrc := helpers.SetColours(backgroundColour, qrCodeColour)
 
@@ -29,7 +31,7 @@ func GenerateQRCode(data string, size int, qrCodeColour string, backgroundColour
 	}
 
 	buf := &bytes.Buffer{}
-	err = png.Encode(buf, qrImg)
+	err := png.Encode(buf, qrImg)
 	if err != nil {
 		return nil, err
 	}
