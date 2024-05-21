@@ -68,6 +68,8 @@ func OverlayLogo(qrImg *image.Image, logo image.Image, opacity float64) {
 
 	// Update the QR code image with the merged image
 	*qrImg = merged
+	logo = nil
+	newLogo = nil
 }
 
 var ColorMap = map[string]color.Color{
