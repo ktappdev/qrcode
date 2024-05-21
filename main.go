@@ -99,6 +99,7 @@ func GetQr(c *gin.Context) {
 			return
 		}
 		logo = &decodedLogo
+		log.Println("logo decoded just fine")
 		// cachedLogo = &decodedLogo
 		// logo = cachedLogo
 	}
