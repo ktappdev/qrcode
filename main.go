@@ -44,7 +44,7 @@ func main() {
 	router := gin.Default()
 
 	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{"*", "http://localhost:3000", "http://localhost:8081", "http://192.168.1.14"}
+	config.AllowOrigins = []string{"*", "http://localhost:3000", "http://localhost:8081", "https://592code.vercel.app"}
 	config.AllowMethods = []string{"GET", "POST"}
 	router.Use(cors.New(config))
 	router.GET("/qrcode", GetQr)
