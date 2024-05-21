@@ -85,10 +85,11 @@ func GetQr(c *gin.Context) {
 			c.String(http.StatusBadRequest, "Failed to decode logo image")
 			return
 		}
-		cachedLogo = &decodedLogo
-		logo = cachedLogo
+		logo = &decodedLogo
+		// cachedLogo = &decodedLogo
+		// logo = cachedLogo
 	} else if cachedLogo != nil {
-		logo = cachedLogo
+		// logo = cachedLogo
 	}
 
 	size := -10 // -10 will make each qr pixel 10x10, i can do 256 which would give 256x256px image but there is usually white space around it
