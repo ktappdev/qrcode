@@ -13,13 +13,10 @@ import (
 	"github.com/ktappdev/qrcode-server/qrcode"
 	"github.com/ktappdev/qrcode-server/ratelimiter"
 	"github.com/ktappdev/qrcode-server/urlexchanger"
-	_ "image/gif"
 	_ "image/jpeg"
 	_ "image/png"
 
 	"golang.org/x/image/bmp"
-	"golang.org/x/image/tiff"
-	"golang.org/x/image/webp"
 )
 
 var limiter = ratelimiter.NewIPRateLimiter(1)
@@ -28,8 +25,6 @@ var exchanger = urlexchanger.NewURLExchanger()
 // var cachedLogo *image.Image
 func init() {
 	image.RegisterFormat("bmp", "bmp", bmp.Decode, bmp.DecodeConfig)
-	image.RegisterFormat("tiff", "tiff", tiff.Decode, tiff.DecodeConfig)
-	image.RegisterFormat("webp", "webp", webp.Decode, webp.DecodeConfig)
 }
 func main() {
 	err := godotenv.Load()
@@ -67,20 +62,17 @@ func GetQr(c *gin.Context) {
 	originalLink := c.PostForm("originalLink")
 	backgroundColour := c.PostForm("backgroundColour")
 	qrCodeColour := c.PostForm("qrCodeColour")
-
 	// Get the logo image from the form data
 	logoFile, err := c.FormFile("logo")
 	if err != nil && err != http.ErrMissingFile {
 		log.Println("no logo", err)
 	}
-
 	// Get the opacity from the form data
 	opacity := c.PostForm("opacity")
 
-	// Convert the opacity to a float64 using the utility function
+	// Convert the opacity to a float64
 	opacityFloat64, err := helpers.ParseOpacity(opacity)
 	if err != nil {
-		log.Println("invalid opacity value:", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid opacity value"})
 		return
 	}
@@ -91,17 +83,16 @@ func GetQr(c *gin.Context) {
 			c.String(http.StatusInternalServerError, "Failed to open logo file")
 			return
 		}
+		logoFile = nil
 		defer file.Close()
 
 		// Decode the logo image
 		decodedLogo, _, err := image.Decode(file)
 		if err != nil {
-			log.Println("Failed to decode logo image:", err)
 			c.String(http.StatusBadRequest, "Failed to decode logo image")
 			return
 		}
 		logo = &decodedLogo
-		log.Println("logo decoded just fine")
 		// cachedLogo = &decodedLogo
 		// logo = cachedLogo
 	}
