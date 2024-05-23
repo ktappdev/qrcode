@@ -108,7 +108,7 @@ func SetColours(backgroundColour, qrCodeColour string) (bgHex, qrHex string) {
 }
 
 func HexToColor(hexString string) (color.Color, error) {
-	hexBytes, err := hex.DecodeString(hexString)
+	hexBytes, err := hex.DecodeString(hexString[1:]) // Ignores the leading "#"
 	if err != nil {
 		return nil, err
 	}
@@ -116,17 +116,17 @@ func HexToColor(hexString string) (color.Color, error) {
 	switch len(hexBytes) {
 	case 3:
 		return color.RGBA{
-			R: hexBytes[0],
-			G: hexBytes[1],
-			B: hexBytes[2],
+			R: hexBytes[0] * 0x11,
+			G: hexBytes[1] * 0x11,
+			B: hexBytes[2] * 0x11,
 			A: 0xff,
 		}, nil
 	case 4:
 		return color.RGBA{
-			R: hexBytes[0],
-			G: hexBytes[1],
-			B: hexBytes[2],
-			A: hexBytes[3],
+			R: hexBytes[0] * 0x11,
+			G: hexBytes[1] * 0x11,
+			B: hexBytes[2] * 0x11,
+			A: hexBytes[3] * 0x11,
 		}, nil
 	default:
 		return nil, fmt.Errorf("invalid hex color string: %s", hexString)

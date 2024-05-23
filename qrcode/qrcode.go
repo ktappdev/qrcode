@@ -18,6 +18,8 @@ func GenerateQRCode(data string, size int, qrCodeColour string, backgroundColour
 	} else {
 		qr, _ = qrcode.New(data, qrcode.Low)
 	}
+	log.Println("foreground good")
+
 	bgcHEX, qrcHEX := helpers.SetColours(backgroundColour, qrCodeColour)
 
 	// Set the foreground and background colors
