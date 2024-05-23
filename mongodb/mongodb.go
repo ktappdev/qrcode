@@ -19,13 +19,16 @@ var client *mongo.Client
 
 // QRCodeURL represents the data model for a QR code URL mapping
 type QRCodeURL struct {
+	Type          string `bson:"type"`
 	ID            string `bson:"_id"`          // This field maps to the "_id" field in the MongoDB document
 	OriginalURL   string `bson:"original_url"` // This field maps to the "original_url" field in the MongoDB document
 	ForegroundHex string `bson:"foreground_hex"`
 	BackgroundHex string `bson:"background_hex"`
+	Name          string `bson:"name"`
 }
 
 type QRCodeInteraction struct {
+	Type      string `bson:"type"`
 	ID        string `bson:"_id"`
 	QRCodeID  string `bson:"qr_code_id"`
 	Timestamp string `bson:"timestamp"`
@@ -65,7 +68,7 @@ func InsertQRCodeURL(id, originalURL string, backgroundColour, qrCodeColour stri
 	}
 
 	// Get a handle to the "qr_code_urls" collection in the database
-	collection := client.Database("qr").Collection("qr_code_details")
+	collection := client.Database("qr").Collection("qr_codes")
 	filter := bson.M{"_id": id}
 	update := bson.M{"$set": qrCodeURL}
 	upsert := true // Create a boolean variable
@@ -84,7 +87,7 @@ func InsertQRCodeURL(id, originalURL string, backgroundColour, qrCodeColour stri
 
 // GetQRCodeURL retrieves the original URL for a given QR code ID
 func GetQRCodeURL(id string) (string, error) {
-	collection := client.Database("qr").Collection("qr_code_urls")
+	collection := client.Database("qr").Collection("qr_codes")
 
 	// Create a variable to hold the retrieved document
 	var qrCodeURL QRCodeURL
