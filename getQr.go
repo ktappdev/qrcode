@@ -37,7 +37,7 @@ func GetQr(c *gin.Context) {
 	}
 
 	size := 256 // -10 will make each qr pixel 10x10, i can do 256 which would give 256x256px image but there is usually white space around it
-	qrCodeURL := exchanger.GenerateQRCodeURL(originalLink)
+	qrCodeURL := exchanger.GenerateQRCodeURL(originalLink, backgroundColour, qrCodeColour)
 	qrCodeBytes, err := qrcode.GenerateQRCode(qrCodeURL, size, qrCodeColour, backgroundColour, logo, opacityFloat64)
 	if err != nil {
 		c.String(http.StatusInternalServerError, "Error generating QR code")

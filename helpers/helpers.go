@@ -1,6 +1,8 @@
 package helpers
 
 import (
+	"encoding/hex"
+	"fmt"
 	"image"
 	"image/color"
 	"strconv"
@@ -72,39 +74,61 @@ func OverlayLogo(qrImg *image.Image, logo image.Image, opacity float64) {
 	newLogo = nil
 }
 
-var ColorMap = map[string]color.Color{
-	"red":       color.RGBA{R: 255, G: 0, B: 0, A: 255},
-	"green":     color.RGBA{R: 0, G: 255, B: 0, A: 255},
-	"blue":      color.RGBA{R: 0, G: 0, B: 255, A: 255},
-	"yellow":    color.RGBA{R: 255, G: 255, B: 0, A: 255},
-	"purple":    color.RGBA{R: 128, G: 0, B: 128, A: 255},
-	"orange":    color.RGBA{R: 255, G: 165, B: 0, A: 255},
-	"pink":      color.RGBA{R: 255, G: 192, B: 203, A: 255},
-	"brown":     color.RGBA{R: 165, G: 42, B: 42, A: 255},
-	"gray":      color.RGBA{R: 128, G: 128, B: 128, A: 255},
-	"black":     color.RGBA{R: 0, G: 0, B: 0, A: 255},
-	"white":     color.RGBA{R: 255, G: 255, B: 255, A: 255},
-	"turquoise": color.RGBA{R: 64, G: 224, B: 208, A: 255},
-	"indigo":    color.RGBA{R: 75, G: 0, B: 130, A: 255},
-	"maroon":    color.RGBA{R: 128, G: 0, B: 0, A: 255},
-	"lime":      color.RGBA{R: 0, G: 255, B: 0, A: 255},
-	"teal":      color.RGBA{R: 0, G: 128, B: 128, A: 255},
+var ColorMap = map[string]string{
+	"red":       "#FF0000",
+	"green":     "#00FF00",
+	"blue":      "#0000FF",
+	"yellow":    "#FFFF00",
+	"purple":    "#800080",
+	"orange":    "#FFA500",
+	"pink":      "#FFC0CB",
+	"brown":     "#A52A2A",
+	"gray":      "#808080",
+	"black":     "#000000",
+	"white":     "#FFFFFF",
+	"turquoise": "#40E0D0",
+	"indigo":    "#4B0082",
+	"maroon":    "#800000",
+	"lime":      "#00FF00",
+	"teal":      "#008080",
 }
 
-func SetColours(backgroundColour, qrCodeColour string) (bgc, qrc color.Color) {
-	bgc, ok := ColorMap[backgroundColour]
+func SetColours(backgroundColour, qrCodeColour string) (bgHex, qrHex string) {
+	bgHex, ok := ColorMap[backgroundColour]
 	if !ok {
-		// Handle case when the background color name is not found in the map
-		// You can set a default color or return an error
-		bgc = ColorMap["white"]
+		bgHex = ColorMap["white"]
 	}
 
-	qrc, ok = ColorMap[qrCodeColour]
+	qrHex, ok = ColorMap[qrCodeColour]
 	if !ok {
-		// Handle case when the QR code color name is not found in the map
-		// You can set a default color or return an error
-		qrc = ColorMap["black"]
+		qrHex = ColorMap["black"]
 	}
 
-	return bgc, qrc
+	return bgHex, qrHex
+}
+
+func HexToColor(hexString string) (color.Color, error) {
+	hexBytes, err := hex.DecodeString(hexString)
+	if err != nil {
+		return nil, err
+	}
+
+	switch len(hexBytes) {
+	case 3:
+		return color.RGBA{
+			R: hexBytes[0],
+			G: hexBytes[1],
+			B: hexBytes[2],
+			A: 0xff,
+		}, nil
+	case 4:
+		return color.RGBA{
+			R: hexBytes[0],
+			G: hexBytes[1],
+			B: hexBytes[2],
+			A: hexBytes[3],
+		}, nil
+	default:
+		return nil, fmt.Errorf("invalid hex color string: %s", hexString)
+	}
 }

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/ktappdev/qrcode-server/helpers"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -18,8 +19,10 @@ var client *mongo.Client
 
 // QRCodeURL represents the data model for a QR code URL mapping
 type QRCodeURL struct {
-	ID          string `bson:"_id"`          // This field maps to the "_id" field in the MongoDB document
-	OriginalURL string `bson:"original_url"` // This field maps to the "original_url" field in the MongoDB document
+	ID            string `bson:"_id"`          // This field maps to the "_id" field in the MongoDB document
+	OriginalURL   string `bson:"original_url"` // This field maps to the "original_url" field in the MongoDB document
+	ForegroundHex string `bson:"foreground_hex"`
+	BackgroundHex string `bson:"background_hex"`
 }
 
 type QRCodeInteraction struct {
@@ -51,10 +54,14 @@ func Connect(uri string) error {
 }
 
 // InsertQRCodeURL inserts a new QR code URL mapping into the database
-func InsertQRCodeURL(id, originalURL string) error {
+func InsertQRCodeURL(id, originalURL string, backgroundColour, qrCodeColour string) error {
+	foregroundHex, backgroundHex := helpers.SetColours(backgroundColour, qrCodeColour)
+
 	qrCodeURL := QRCodeURL{
-		ID:          id,
-		OriginalURL: originalURL,
+		ID:            id,
+		OriginalURL:   originalURL,
+		ForegroundHex: foregroundHex,
+		BackgroundHex: backgroundHex,
 	}
 
 	// Get a handle to the "qr_code_urls" collection in the database

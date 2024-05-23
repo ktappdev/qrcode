@@ -67,8 +67,8 @@ func GetWifiQR(c *gin.Context) {
 		logo = &decodedLogo
 	}
 
-	size := 256 // Adjust the size as needed
-	qrCodeURL := exchanger.GenerateQRCodeURL(wifiQRData)
+	size := 256
+	qrCodeURL := exchanger.GenerateQRCodeURL(wifiQRData, backgroundColour, qrCodeColour)
 	qrCodeBytes, err := qrcode.GenerateQRCode(qrCodeURL, size, qrCodeColour, backgroundColour, logo, opacityFloat64)
 	if err != nil {
 		c.String(http.StatusInternalServerError, "Error generating QR code")

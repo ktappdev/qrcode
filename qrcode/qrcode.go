@@ -18,11 +18,23 @@ func GenerateQRCode(data string, size int, qrCodeColour string, backgroundColour
 	} else {
 		qr, _ = qrcode.New(data, qrcode.Low)
 	}
-	bgc, qrc := helpers.SetColours(backgroundColour, qrCodeColour)
+	bgcHEX, qrcHEX := helpers.SetColours(backgroundColour, qrCodeColour)
 
 	// Set the foreground and background colors
-	qr.ForegroundColor = qrc
-	qr.BackgroundColor = bgc
+	foregroundColor, err := helpers.HexToColor(qrcHEX)
+	if err != nil {
+		// Handle the error
+		return nil, err
+	}
+
+	backgroundColor, err := helpers.HexToColor(bgcHEX)
+	if err != nil {
+		// Handle the error
+		return nil, err
+	}
+
+	qr.ForegroundColor = foregroundColor
+	qr.BackgroundColor = backgroundColor
 
 	// Generate the QR code image
 	qrImg := qr.Image(size)
@@ -35,7 +47,7 @@ func GenerateQRCode(data string, size int, qrCodeColour string, backgroundColour
 
 	log.Println("this is after overlay and about to encode png")
 	buf := &bytes.Buffer{}
-	err := png.Encode(buf, qrImg)
+	err = png.Encode(buf, qrImg)
 	if err != nil {
 		return nil, err
 	}
