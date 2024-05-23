@@ -4,10 +4,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/ktappdev/qrcode-server/helpers"
 	"github.com/ktappdev/qrcode-server/qrcode"
-	"image"
 	_ "image/jpeg"
 	_ "image/png"
-	"log"
 	"net/http"
 )
 
@@ -20,15 +18,11 @@ func GetQr(c *gin.Context) {
 
 	// Get the original link from the form data
 	originalLink := c.PostForm("originalLink")
+	// Get the opacity from the form data
+	opacity := c.PostForm("opacity")
 	backgroundColour := c.PostForm("backgroundColour")
 	qrCodeColour := c.PostForm("qrCodeColour")
 	// Get the logo image from the form data
-	logoFile, err := c.FormFile("logo")
-	if err != nil && err != http.ErrMissingFile {
-		log.Println("no logo", err)
-	}
-	// Get the opacity from the form data
-	opacity := c.PostForm("opacity")
 
 	// Convert the opacity to a float64
 	opacityFloat64, err := helpers.ParseOpacity(opacity)
@@ -36,25 +30,10 @@ func GetQr(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid opacity value"})
 		return
 	}
-	var logo *image.Image
-	if logoFile != nil {
-		file, err := logoFile.Open()
-		if err != nil {
-			c.String(http.StatusInternalServerError, "Failed to open logo file")
-			return
-		}
-		logoFile = nil
-		defer file.Close()
-
-		// Decode the logo image
-		decodedLogo, _, err := image.Decode(file)
-		if err != nil {
-			c.String(http.StatusBadRequest, "Failed to decode logo image")
-			return
-		}
-		logo = &decodedLogo
-		// cachedLogo = &decodedLogo
-		// logo = cachedLogo
+	logo, err := LoadLogo(c)
+	if err != nil {
+		c.String(http.StatusBadRequest, "Failed to load logo image")
+		return
 	}
 
 	size := 256 // -10 will make each qr pixel 10x10, i can do 256 which would give 256x256px image but there is usually white space around it
@@ -66,4 +45,5 @@ func GetQr(c *gin.Context) {
 	}
 
 	c.Data(http.StatusOK, "image/png", qrCodeBytes)
+
 }
