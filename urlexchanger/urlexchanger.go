@@ -82,7 +82,7 @@ func (e *URLExchanger) HandleQRCodeInteraction(c *gin.Context) {
 	e.mu.RUnlock()
 	if exists {
 		//NOTE: Mapping found in the in-memory map
-		mongodb.LogQRCodeInteraction(uniqueID, c.Request)
+		mongodb.LogQRCodeInteraction(uniqueID, c)
 		log.Println("this is the link returned from in-memory", originalURL)
 		c.Redirect(http.StatusFound, originalURL)
 		return
