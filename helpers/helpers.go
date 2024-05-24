@@ -80,7 +80,7 @@ var ColorMap = map[string]string{
 	"blue":      "#0000FF",
 	"purple":    "#800080",
 	"orange":    "#FFA500",
-	"pink":      "#FFC0CB",
+	"pink":      "#FF69B4",
 	"brown":     "#A52A2A",
 	"gray":      "#808080",
 	"black":     "#000000",
