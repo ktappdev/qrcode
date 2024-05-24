@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/ktappdev/qrcode-server/helpers"
 	"go.mongodb.org/mongo-driver/bson"
@@ -26,6 +27,7 @@ type QRCodeURL struct {
 	BackgroundHex string `bson:"background_hex"`
 	Name          string `bson:"name"`
 	Owner         string `bson:"owner"`
+	CreatedAt     string `bson:"timestamp"`
 }
 
 type QRCodeInteraction struct {
@@ -73,6 +75,7 @@ func originalLinkEmpty(originalLink string, defaultLink string) string {
 // InsertQRCodeURL inserts a new QR code URL mapping into the database
 func InsertQRCodeURL(id, originalLink string, backgroundColour, qrCodeColour string, name string) error {
 	foregroundHex, backgroundHex := helpers.SetColours(backgroundColour, qrCodeColour)
+	timestamp := time.Now().Format(time.RFC3339)
 	qrCodeURL := QRCodeURL{
 		ID:            id,
 		OriginalURL:   originalLinkEmpty(originalLink, "https://592code.vercel.app/empty"),
@@ -80,6 +83,7 @@ func InsertQRCodeURL(id, originalLink string, backgroundColour, qrCodeColour str
 		BackgroundHex: backgroundHex,
 		Name:          name,
 		Type:          "qrcode",
+		CreatedAt:     timestamp,
 	}
 
 	// Get a handle to the "qr_code_urls" collection in the database
@@ -119,11 +123,12 @@ func GetQRCodeURL(id string) (string, error) {
 	return qrCodeURL.OriginalURL, nil
 }
 
-func LogQRCodeInteraction(qrCodeID string, r *http.Request) error {
+func LogQRCodeInteraction(qrCodeID string, c *gin.Context) error {
 	timestamp := time.Now().Format(time.RFC3339)
-	userAgent := r.UserAgent()
-	ipAddress := r.RemoteAddr
-	referer := r.Referer()
+	userAgent := c.Request.UserAgent()
+	ipAddress := c.ClientIP()
+
+	referer := c.Request.Referer()
 
 	interaction := QRCodeInteraction{
 		ID:        uuid.New().String(),
