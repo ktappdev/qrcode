@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/ktappdev/qrcode-server/helpers"
+	"github.com/oschwald/geoip2-golang"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -28,7 +29,19 @@ type QRCodeURL struct {
 	Owner         string `bson:"owner"`
 	CreatedAt     string `bson:"timestamp"`
 }
-
+type Location struct {
+	Latitude       float64
+	Longitude      float64
+	TimeZone       string
+	MetroCode      uint
+	AccuracyRadius uint16
+	City           string
+	PostalCode     string
+	Continent      string
+	CountryName    string
+	CountryIsoCode string
+	Regions        []string
+}
 type QRCodeInteraction struct {
 	Type      string `bson:"type"`
 	ID        string `bson:"_id"`
@@ -37,6 +50,7 @@ type QRCodeInteraction struct {
 	UserAgent string `bson:"user_agent"`
 	IPAddress string `bson:"ip_address"`
 	Referer   string `bson:"referer"`
+	Location  Location
 }
 type User struct {
 	ID        string   `bson:"_id"`
@@ -122,12 +136,32 @@ func GetQRCodeURL(id string) (string, error) {
 	return qrCodeURL.OriginalURL, nil
 }
 
-func LogQRCodeInteraction(qrCodeID string, c *gin.Context) error {
+func LogQRCodeInteraction(qrCodeID string, c *gin.Context, locationData *geoip2.City) error {
 	timestamp := time.Now().Format(time.RFC3339)
 	userAgent := c.Request.UserAgent()
 	ipAddress := c.ClientIP()
-
 	referer := c.Request.Referer()
+
+	var regions []string
+	for _, subdivision := range locationData.Subdivisions {
+		if name, ok := subdivision.Names["en"]; ok {
+			regions = append(regions, name)
+		}
+	}
+
+	location := Location{
+		Latitude:       locationData.Location.Latitude,
+		Longitude:      locationData.Location.Longitude,
+		TimeZone:       locationData.Location.TimeZone,
+		MetroCode:      locationData.Location.MetroCode,
+		AccuracyRadius: locationData.Location.AccuracyRadius,
+		City:           locationData.City.Names["en"],
+		PostalCode:     locationData.Postal.Code,
+		Continent:      locationData.Continent.Names["en"],
+		CountryName:    locationData.Country.Names["en"],
+		CountryIsoCode: locationData.Country.IsoCode,
+		Regions:        regions,
+	}
 
 	interaction := QRCodeInteraction{
 		ID:        uuid.New().String(),
@@ -136,6 +170,7 @@ func LogQRCodeInteraction(qrCodeID string, c *gin.Context) error {
 		UserAgent: userAgent,
 		IPAddress: ipAddress,
 		Referer:   referer,
+		Location:  location,
 	}
 
 	collection := client.Database("qr").Collection("qr_code_details")
