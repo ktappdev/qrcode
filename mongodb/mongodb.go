@@ -25,6 +25,7 @@ type QRCodeURL struct {
 	ForegroundHex string `bson:"foreground_hex"`
 	BackgroundHex string `bson:"background_hex"`
 	Name          string `bson:"name"`
+	Owner         string `bson:"owner"`
 }
 
 type QRCodeInteraction struct {
@@ -35,6 +36,12 @@ type QRCodeInteraction struct {
 	UserAgent string `bson:"user_agent"`
 	IPAddress string `bson:"ip_address"`
 	Referer   string `bson:"referer"`
+}
+type User struct {
+	ID        string   `bson:"_id"`
+	Name      string   `bson:"name"`
+	Email     string   `bson:"email"`
+	QRCodeIDs []string `bson:"qr_code_ids"`
 }
 
 // Connect establishes a connection to the MongoDB Atlas cluster
@@ -56,15 +63,23 @@ func Connect(uri string) error {
 	return nil
 }
 
-// InsertQRCodeURL inserts a new QR code URL mapping into the database
-func InsertQRCodeURL(id, originalURL string, backgroundColour, qrCodeColour string) error {
-	foregroundHex, backgroundHex := helpers.SetColours(backgroundColour, qrCodeColour)
+func originalLinkEmpty(originalLink string, defaultLink string) string {
+	if originalLink == "" {
+		return originalLink
+	}
+	return defaultLink
+}
 
+// InsertQRCodeURL inserts a new QR code URL mapping into the database
+func InsertQRCodeURL(id, originalLink string, backgroundColour, qrCodeColour string, name string) error {
+	foregroundHex, backgroundHex := helpers.SetColours(backgroundColour, qrCodeColour)
 	qrCodeURL := QRCodeURL{
 		ID:            id,
-		OriginalURL:   originalURL,
+		OriginalURL:   originalLinkEmpty(originalLink, "https://592code.vercel.app/empty"),
 		ForegroundHex: foregroundHex,
 		BackgroundHex: backgroundHex,
+		Name:          name,
+		Type:          "qrcode",
 	}
 
 	// Get a handle to the "qr_code_urls" collection in the database

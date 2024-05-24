@@ -30,7 +30,7 @@ func NewURLExchanger() *URLExchanger {
 	}
 }
 
-func (e *URLExchanger) GenerateQRCodeURL(originalURL string, backgroundColour, qrCodeColour string) string {
+func (e *URLExchanger) GenerateQRCodeURL(originalURL string, backgroundColour, qrCodeColour string, name string) string {
 	port, server := getEnvItems()
 	uniqueID := uuid.New().String()
 
@@ -40,7 +40,7 @@ func (e *URLExchanger) GenerateQRCodeURL(originalURL string, backgroundColour, q
 	e.mu.Unlock()
 
 	//NOTE: Store the mapping in the database
-	err := mongodb.InsertQRCodeURL(uniqueID, originalURL, backgroundColour, qrCodeColour)
+	err := mongodb.InsertQRCodeURL(uniqueID, originalURL, backgroundColour, qrCodeColour, name)
 	if err != nil {
 		log.Println("Error inserting URL into database")
 		log.Fatal(err)
