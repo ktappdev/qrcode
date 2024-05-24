@@ -6,6 +6,7 @@ import (
 	"image"
 	"image/color"
 	"strconv"
+	"strings"
 
 	"golang.org/x/image/draw"
 )
@@ -96,52 +97,102 @@ func SetColours(backgroundColour, qrCodeColour string) (bgHex, qrHex string) {
 	bgHex, ok := ColorMap[backgroundColour]
 	if !ok {
 		bgHex = ColorMap["white"]
+		qrHex = ColorMap["black"]
 	}
 
 	qrHex, ok = ColorMap[qrCodeColour]
 	if !ok {
 		qrHex = ColorMap["black"]
+		bgHex = ColorMap["white"]
 	}
 
 	return bgHex, qrHex
 }
 
 func HexToColor(hexString string) (color.Color, error) {
-	hexBytes, err := hex.DecodeString(hexString[1:]) // Ignores the leading "#"
-	if err != nil {
-		return nil, err
-	}
-
-	switch len(hexBytes) {
-	case 3:
-		return color.RGBA{
-			R: hexBytes[0] * 0x11,
-			G: hexBytes[1] * 0x11,
-			B: hexBytes[2] * 0x11,
-			A: 0xff,
-		}, nil
-	case 4:
-		return color.RGBA{
-			R: hexBytes[0] * 0x11,
-			G: hexBytes[1] * 0x11,
-			B: hexBytes[2] * 0x11,
-			A: hexBytes[3] * 0x11,
-		}, nil
-	case 6:
-		return color.RGBA{
-			R: hexBytes[0],
-			G: hexBytes[2],
-			B: hexBytes[4],
-			A: 0xff,
-		}, nil
-	case 8:
-		return color.RGBA{
-			R: hexBytes[0],
-			G: hexBytes[2],
-			B: hexBytes[4],
-			A: hexBytes[6],
-		}, nil
-	default:
+	if !strings.HasPrefix(hexString, "#") {
 		return nil, fmt.Errorf("invalid hex color string: %s", hexString)
 	}
+	hexString = hexString[1:] // Remove leading "#"
+
+	var r, g, b, a uint8
+	var err error
+
+	switch len(hexString) {
+	case 3: // e.g., #RGB
+		r, err = hexToByte(hexString[0:1] + hexString[0:1])
+		if err != nil {
+			return nil, err
+		}
+		g, err = hexToByte(hexString[1:2] + hexString[1:2])
+		if err != nil {
+			return nil, err
+		}
+		b, err = hexToByte(hexString[2:3] + hexString[2:3])
+		if err != nil {
+			return nil, err
+		}
+		a = 0xff
+	case 4: // e.g., #RGBA
+		r, err = hexToByte(hexString[0:1] + hexString[0:1])
+		if err != nil {
+			return nil, err
+		}
+		g, err = hexToByte(hexString[1:2] + hexString[1:2])
+		if err != nil {
+			return nil, err
+		}
+		b, err = hexToByte(hexString[2:3] + hexString[2:3])
+		if err != nil {
+			return nil, err
+		}
+		a, err = hexToByte(hexString[3:4] + hexString[3:4])
+		if err != nil {
+			return nil, err
+		}
+	case 6: // e.g., #RRGGBB
+		r, err = hexToByte(hexString[0:2])
+		if err != nil {
+			return nil, err
+		}
+		g, err = hexToByte(hexString[2:4])
+		if err != nil {
+			return nil, err
+		}
+		b, err = hexToByte(hexString[4:6])
+		if err != nil {
+			return nil, err
+		}
+		a = 0xff
+	case 8: // e.g., #RRGGBBAA
+		r, err = hexToByte(hexString[0:2])
+		if err != nil {
+			return nil, err
+		}
+		g, err = hexToByte(hexString[2:4])
+		if err != nil {
+			return nil, err
+		}
+		b, err = hexToByte(hexString[4:6])
+		if err != nil {
+			return nil, err
+		}
+		a, err = hexToByte(hexString[6:8])
+		if err != nil {
+			return nil, err
+		}
+	default:
+		return nil, fmt.Errorf("invalid hex color string length: %s", hexString)
+	}
+
+	return color.RGBA{R: r, G: g, B: b, A: a}, nil
+}
+
+// hexToByte converts a hex string to a byte.
+func hexToByte(hexStr string) (byte, error) {
+	bytes, err := hex.DecodeString(hexStr)
+	if err != nil || len(bytes) != 1 {
+		return 0, fmt.Errorf("invalid hex byte: %s", hexStr)
+	}
+	return bytes[0], nil
 }
