@@ -78,7 +78,6 @@ var ColorMap = map[string]string{
 	"red":       "#FF0000",
 	"green":     "#00FF00",
 	"blue":      "#0000FF",
-	"yellow":    "#FFFF00",
 	"purple":    "#800080",
 	"orange":    "#FFA500",
 	"pink":      "#FFC0CB",
@@ -127,6 +126,20 @@ func HexToColor(hexString string) (color.Color, error) {
 			G: hexBytes[1] * 0x11,
 			B: hexBytes[2] * 0x11,
 			A: hexBytes[3] * 0x11,
+		}, nil
+	case 6:
+		return color.RGBA{
+			R: hexBytes[0],
+			G: hexBytes[2],
+			B: hexBytes[4],
+			A: 0xff,
+		}, nil
+	case 8:
+		return color.RGBA{
+			R: hexBytes[0],
+			G: hexBytes[2],
+			B: hexBytes[4],
+			A: hexBytes[6],
 		}, nil
 	default:
 		return nil, fmt.Errorf("invalid hex color string: %s", hexString)
