@@ -64,7 +64,7 @@ func Connect(uri string) error {
 }
 
 func originalLinkEmpty(originalLink string, defaultLink string) string {
-	if originalLink == "" {
+	if originalLink != "" {
 		return originalLink
 	}
 	return defaultLink
