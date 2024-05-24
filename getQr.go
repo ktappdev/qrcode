@@ -18,6 +18,9 @@ func GetQr(c *gin.Context) {
 
 	// Get the original link from the form data
 	originalLink := c.PostForm("originalLink")
+	if originalLink == "https://" {
+		originalLink = ""
+	}
 	// Get the opacity from the form data
 	opacity := c.PostForm("opacity")
 	backgroundColour := c.PostForm("backgroundColour")
