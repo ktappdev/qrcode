@@ -200,7 +200,7 @@ func hexToByte(hexStr string) (byte, error) {
 	return bytes[0], nil
 }
 
-func LoadLogo(c *gin.Context) (*image.Image, error) {
+func LoadLogo(c *gin.Context, effect bool) (*image.Image, error) {
 	logoFile, err := c.FormFile("logo")
 	if err != nil {
 		if err != http.ErrMissingFile {
@@ -221,35 +221,12 @@ func LoadLogo(c *gin.Context) (*image.Image, error) {
 		return nil, err
 	}
 
-	// Apply QR code effect to the decoded logo
-	modifiedLogo := ApplyQRCodeEffect(decodedLogo, 10, 0.3)
+	if effect {
+		// Apply QR code effect to the decoded logo
+		modifiedLogo := ApplyQRCodeEffect(decodedLogo, 10, 0.3)
 
-	return &modifiedLogo, nil
+		return &modifiedLogo, nil
+	} else {
+		return &decodedLogo, nil
+	}
 }
-
-// // Function to create the pattern image
-// func createPattern(logo image.Image) image.Image {
-// 	// Define pattern size (for simplicity, assuming same size as the logo)
-// 	bounds := logo.Bounds()
-// 	width := bounds.Max.X - bounds.Min.X
-// 	height := bounds.Max.Y - bounds.Min.Y
-//
-// 	// Create a new RGBA image for the pattern
-// 	pattern := image.NewRGBA(image.Rect(0, 0, width, height))
-//
-// 	// Fill the pattern with alternating colors (you can customize this)
-// 	for y := 0; y < height; y++ {
-// 		for x := 0; x < width; x++ {
-// 			if (x+y)%2 == 0 {
-// 				pattern.Set(x, y, color.White)
-// 			} else {
-// 				pattern.Set(x, y, color.Black)
-// 			}
-// 		}
-// 	}
-//
-// 	// Overlay the logo onto the pattern
-// 	draw.Draw(pattern, pattern.Bounds(), logo, logo.Bounds().Min, draw.Over)
-//
-// 	return pattern
-// }

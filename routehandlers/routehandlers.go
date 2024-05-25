@@ -35,7 +35,7 @@ func GetQr(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid opacity value"})
 		return
 	}
-	logo, err := helpers.LoadLogo(c)
+	logo, err := helpers.LoadLogo(c, false) // NOTE: Plugin system for effects later
 	if err != nil {
 		c.String(http.StatusBadRequest, "Failed to load logo image")
 		return
