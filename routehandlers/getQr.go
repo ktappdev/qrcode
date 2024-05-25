@@ -8,10 +8,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/ktappdev/qrcode-server/helpers"
 	"github.com/ktappdev/qrcode-server/qrcode"
-	"github.com/ktappdev/qrcode-server/urlexchanger"
+	"github.com/ktappdev/qrcode-server/urlhandler"
 )
 
-var exchanger = urlexchanger.NewURLExchanger()
+var exchanger = urlhandler.NewURLExchanger()
 
 func GetQr(c *gin.Context) {
 
