@@ -2,14 +2,18 @@ package mongodb
 
 import (
 	"context"
+	"net/http"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func GetInteractionsForQRCode(qrCodeID string) ([]QRCodeInteraction, error) {
+func GetInteractionsForQRCode(c *gin.Context) {
+	qrCodeID := c.Query("id")
+
 	// Get a handle to the "qr_code_details" collection
 	collection := client.Database("qr").Collection("qr_code_details")
 
@@ -22,7 +26,11 @@ func GetInteractionsForQRCode(qrCodeID string) ([]QRCodeInteraction, error) {
 	// Use the Find method to get a cursor over the matching documents
 	cursor, err := collection.Find(context.Background(), filter)
 	if err != nil {
-		return nil, err
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  "error",
+			"message": "Failed to retrieve QR code details",
+		})
+		return
 	}
 
 	// Ensure the cursor is closed at the end of the function
@@ -30,11 +38,18 @@ func GetInteractionsForQRCode(qrCodeID string) ([]QRCodeInteraction, error) {
 
 	// Iterate over the cursor and decode the documents into the interactions slice
 	if err = cursor.All(context.Background(), &interactions); err != nil {
-		return nil, err
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  "error",
+			"message": "Failed to decode QR code details",
+		})
+		return
 	}
 
-	// Return the slice of interaction documents
-	return interactions, nil
+	// Return the slice of interaction documents as JSON with a status
+	c.JSON(http.StatusOK, gin.H{
+		"status":       "success",
+		"interactions": interactions,
+	})
 }
 
 func GetMostRecentInteractionForQRCode(qrCodeID string) (*QRCodeInteraction, error) {

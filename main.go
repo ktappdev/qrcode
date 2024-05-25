@@ -56,6 +56,7 @@ func main() {
 	router.Use(cors.New(config))
 	router.POST("/qrcode", GetQr)
 	router.GET("/qr", exchanger.HandleQRCodeInteraction)
+	router.GET("/qrcode-details", mongodb.GetInteractionsForQRCode)
 
 	router.Run(":" + port)
 }

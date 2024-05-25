@@ -22,7 +22,6 @@ func GenerateQRCode(data string, size int, qrCodeColour string, backgroundColour
 
 	bgcHEX, qrcHEX := helpers.SetColours(backgroundColour, qrCodeColour)
 
-	// Set the foreground and background colors
 	foregroundColor, err := helpers.HexToColor(qrcHEX)
 	if err != nil {
 		// Handle the error
