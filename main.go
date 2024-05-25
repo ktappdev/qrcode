@@ -3,16 +3,19 @@ package main
 import (
 	"image"
 	"log"
+	"net/http"
 	"os"
+
+	_ "image/jpeg"
+	_ "image/png"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/ktappdev/qrcode-server/mongodb"
 	"github.com/ktappdev/qrcode-server/ratelimiter"
+	"github.com/ktappdev/qrcode-server/routehandlers"
 	"github.com/ktappdev/qrcode-server/urlexchanger"
-	_ "image/jpeg"
-	_ "image/png"
 
 	"golang.org/x/image/bmp"
 )
@@ -54,7 +57,18 @@ func main() {
 	config.AllowOrigins = []string{"*", "https://592code.vercel.app"}
 	config.AllowMethods = []string{"GET", "POST"}
 	router.Use(cors.New(config))
-	router.POST("/qrcode", GetQr)
+
+	// Apply rate limiter middleware to all routes
+	router.Use(func(c *gin.Context) {
+		clientIP := c.ClientIP()
+		if !limiter.Allow(clientIP) {
+			c.AbortWithStatus(http.StatusTooManyRequests)
+			return
+		}
+		c.Next()
+	})
+
+	router.POST("/qrcode", routehandlers.GetQr)
 	router.GET("/qr", exchanger.HandleQRCodeInteraction)
 	router.GET("/qrcode-details", mongodb.GetInteractionsForQRCode)
 

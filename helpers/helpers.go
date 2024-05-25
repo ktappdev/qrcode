@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"image"
 	"image/color"
+	"net/http"
 	"strconv"
 	"strings"
 
+	"github.com/gin-gonic/gin"
 	"golang.org/x/image/draw"
 )
 
@@ -195,4 +197,28 @@ func hexToByte(hexStr string) (byte, error) {
 		return 0, fmt.Errorf("invalid hex byte: %s", hexStr)
 	}
 	return bytes[0], nil
+}
+
+func LoadLogo(c *gin.Context) (*image.Image, error) {
+	logoFile, err := c.FormFile("logo")
+	if err != nil {
+		if err != http.ErrMissingFile {
+			return nil, err
+		}
+		// No logo file provided, return nil
+		return nil, nil
+	}
+
+	file, err := logoFile.Open()
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	decodedLogo, _, err := image.Decode(file)
+	if err != nil {
+		return nil, err
+	}
+
+	return &decodedLogo, nil
 }
