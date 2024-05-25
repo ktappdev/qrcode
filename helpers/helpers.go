@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	// qrcodeeffect "github.com/ktappdev/qrcode-server/helpers/qr_code_effect"
 	"golang.org/x/image/draw"
 )
 
@@ -220,5 +221,35 @@ func LoadLogo(c *gin.Context) (*image.Image, error) {
 		return nil, err
 	}
 
-	return &decodedLogo, nil
+	// Apply QR code effect to the decoded logo
+	modifiedLogo := ApplyQRCodeEffect(decodedLogo, 10, 0.3)
+
+	return &modifiedLogo, nil
 }
+
+// // Function to create the pattern image
+// func createPattern(logo image.Image) image.Image {
+// 	// Define pattern size (for simplicity, assuming same size as the logo)
+// 	bounds := logo.Bounds()
+// 	width := bounds.Max.X - bounds.Min.X
+// 	height := bounds.Max.Y - bounds.Min.Y
+//
+// 	// Create a new RGBA image for the pattern
+// 	pattern := image.NewRGBA(image.Rect(0, 0, width, height))
+//
+// 	// Fill the pattern with alternating colors (you can customize this)
+// 	for y := 0; y < height; y++ {
+// 		for x := 0; x < width; x++ {
+// 			if (x+y)%2 == 0 {
+// 				pattern.Set(x, y, color.White)
+// 			} else {
+// 				pattern.Set(x, y, color.Black)
+// 			}
+// 		}
+// 	}
+//
+// 	// Overlay the logo onto the pattern
+// 	draw.Draw(pattern, pattern.Bounds(), logo, logo.Bounds().Min, draw.Over)
+//
+// 	return pattern
+// }
