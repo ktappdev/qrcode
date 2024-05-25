@@ -15,13 +15,11 @@ import (
 	"github.com/ktappdev/qrcode-server/mongodb"
 	"github.com/ktappdev/qrcode-server/ratelimiter"
 	"github.com/ktappdev/qrcode-server/routehandlers"
-	"github.com/ktappdev/qrcode-server/urlexchanger"
 
 	"golang.org/x/image/bmp"
 )
 
 var limiter = ratelimiter.NewIPRateLimiter(1)
-var exchanger = urlexchanger.NewURLExchanger()
 
 func init() {
 	image.RegisterFormat("bmp", "bmp", bmp.Decode, bmp.DecodeConfig)
@@ -69,7 +67,7 @@ func main() {
 	})
 
 	router.POST("/qrcode", routehandlers.GetQr)
-	router.GET("/qr", exchanger.HandleQRCodeInteraction)
+	router.GET("/qr", routehandlers.HandleScan)
 	router.GET("/qrcode-details", mongodb.GetInteractionsForQRCode)
 
 	router.Run(":" + port)
