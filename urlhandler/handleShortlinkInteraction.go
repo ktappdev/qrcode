@@ -11,7 +11,7 @@ import (
 )
 
 func (e *LinkExchanger) HandleShortLinkInteraction(c *gin.Context, path string) {
-	log.Println("this is thepath param fort the link", path)
+	log.Println("this is the path param for the link", path)
 	clientIP := c.ClientIP()
 	geoIP, err := geoip.New("./geo-lite/GeoLite2-City.mmdb")
 	if err != nil {
