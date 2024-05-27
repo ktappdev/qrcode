@@ -10,8 +10,7 @@ import (
 	"github.com/ktappdev/qrcode-server/mongodb"
 )
 
-func (e *LinkExchanger) HandleShortLinkInteraction(c *gin.Context) {
-	path := c.Param("path")
+func (e *LinkExchanger) HandleShortLinkInteraction(c *gin.Context, path string) {
 	log.Println("this is thepath param fort the link", path)
 	clientIP := c.ClientIP()
 	geoIP, err := geoip.New("./geo-lite/GeoLite2-City.mmdb")

@@ -74,13 +74,13 @@ func main() {
 
 	// Catch-all route for unmatched paths
 	router.NoRoute(func(c *gin.Context) {
-		// Handle unmatched routes here
-		// Redirect to the root path "/"
-		c.Redirect(http.StatusMovedPermanently, "/")
-	})
+		// Get the unmatched path after the slash
+		path := c.Request.URL.Path[1:]
 
-	// Handle the root path "/"
-	router.GET("/", routehandlers.HandleLinkClick)
+		// Handle the unmatched path here
+		// Call the HandleLinkClick handler function directly
+		routehandlers.HandleLinkClick(c, path)
+	})
 
 	router.Run(":" + port)
 }
