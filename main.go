@@ -30,6 +30,7 @@ func initMongoDB(MONGO_URL string) {
 	if err != nil {
 		log.Fatalf("Failed to connect to MongoDB Atlas: %v", err)
 	}
+
 }
 
 func main() {
@@ -71,7 +72,7 @@ func main() {
 	router.GET("/qr", routehandlers.HandleScan)
 	router.GET("/qrcode-details", mongodb.GetInteractionsForQRCode)
 	router.GET("/short_link-details", mongodb.GetInteractionsForQRCode)
-
+	router.POST("/checkbackhalf", routehandlers.HandleBackhalfCheck)
 	// Catch-all route for unmatched paths
 	router.NoRoute(func(c *gin.Context) {
 		// Get the unmatched path after the slash
