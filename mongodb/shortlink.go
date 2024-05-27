@@ -11,11 +11,11 @@ import (
 	"github.com/oschwald/geoip2-golang"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // InsertShortLink inserts a new short link mapping into the database
 func InsertShortLink(uniqueId, originalURL, name, owner string) error {
+	collection := client.Database("links").Collection("short_links")
 	shortLink := ShortLink{
 		Type:        "shortlink",
 		CreatedAt:   time.Now().Format(time.RFC3339),
@@ -25,23 +25,18 @@ func InsertShortLink(uniqueId, originalURL, name, owner string) error {
 		Owner:       owner,
 	}
 
-	// Get a handle to the "short_links" collection in the database
-	collection := client.Database("links").Collection("short_links")
-
-	filter := bson.M{"_id": shortLink.ID}
-	update := bson.M{"$set": shortLink}
-	upsert := true // Create a boolean variable
-
-	opts := options.UpdateOptions{
-		Upsert: &upsert, // Pass the pointer to the boolean variable
-	}
-
-	_, err := collection.UpdateOne(context.Background(), filter, update, &opts)
+	_, err := collection.InsertOne(context.Background(), shortLink)
 	if err != nil {
+		if IsDuplicateKeyError(err) {
+			// Handle the duplicate key violation (e.g., return an error or try a different uniqueId)
+			// return fmt.Errorf("backhalf '%s' already exists", uniqueId)
+			return err
+		}
+		// Handle other errors
 		return err
 	}
 
-	log.Printf("Inserted or updated Short Link: %+v", shortLink)
+	log.Printf("Inserted Short Link: %+v", shortLink)
 	return nil
 }
 

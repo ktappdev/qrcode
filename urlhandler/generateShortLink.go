@@ -20,9 +20,14 @@ func NewLinkExchanger() *LinkExchanger {
 	}
 }
 
-func (e *LinkExchanger) GenerateShortLink(originalURL string, name, owner string) string {
+func (e *LinkExchanger) GenerateShortLink(originalURL, backhalf, name, owner string) (string, error) {
 	port, server := GetEnvItems()
-	uniqueID := generateUniqueString(4)
+	var uniqueID string
+	if backhalf != "" {
+		uniqueID = backhalf
+	} else {
+		uniqueID = generateUniqueString(4)
+	}
 
 	// Store the mapping in the Map (Keeping this for speed)
 	e.mu.Lock()
@@ -32,8 +37,9 @@ func (e *LinkExchanger) GenerateShortLink(originalURL string, name, owner string
 	// Store the mapping in the database
 	err := mongodb.InsertShortLink(uniqueID, originalURL, name, owner)
 	if err != nil {
-		log.Println("Error inserting URL into database")
-		log.Fatal(err)
+		// log.Println("Error inserting URL into database")
+		return "Error inserting URL into database", err
+
 	}
 
 	log.Println("list of Short Links:", e.linksMap)
@@ -43,11 +49,11 @@ func (e *LinkExchanger) GenerateShortLink(originalURL string, name, owner string
 		fmt.Println("Using local server with port, if this is running on the remote server it will not work")
 		link = fmt.Sprintf("%s:%s/%s", server, port, uniqueID)
 	} else {
-		link = fmt.Sprintf("%s/link?id=%s", server, uniqueID)
+		link = fmt.Sprintf("%s/%s", server, uniqueID)
 	}
 
 	fmt.Println("link", link)
-	return link
+	return link, nil
 }
 
 func generateUniqueString(length int) string {

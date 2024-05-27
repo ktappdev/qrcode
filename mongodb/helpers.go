@@ -26,6 +26,17 @@ func Connect(uri string) error {
 		return err
 	}
 
+	// collection := client.Database("links").Collection("short_links")
+	// // Create a unique index on the "ID" field
+	// indexModel := mongo.IndexModel{
+	// 	Keys:    bson.M{"email": 1}, // Index key
+	// 	Options: options.Index().SetUnique(true),
+	// }
+	// _, err = collection.Indexes().CreateOne(context.Background(), indexModel)
+	// if err != nil {
+	// 	return fmt.Errorf("failed to create mongodb index for backhalf")
+	// }
+
 	log.Println("Connected to MongoDB Atlas")
 	return nil
 }
@@ -35,6 +46,14 @@ func originalLinkEmpty(originalLink string, defaultLink string) string {
 		return originalLink
 	}
 	return defaultLink
+}
+func IsDuplicateKeyError(err error) bool {
+	// Check if the error is a WriteException and the error code is 11000 (duplicate key error)
+	writeException, ok := err.(mongo.WriteException)
+	if ok && len(writeException.WriteErrors) > 0 && writeException.WriteErrors[0].Code == 11000 {
+		return true
+	}
+	return false
 }
 
 // QRCodeURL represents the data model for a QR code URL mapping

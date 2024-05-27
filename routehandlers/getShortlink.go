@@ -16,13 +16,18 @@ func GetShortLink(c *gin.Context) {
 		originalURL = ""
 	}
 
+	backhalf := c.PostForm("backhalf")
 	name := c.PostForm("name")
 	owner := c.PostForm("owner")
 
-	// Generate the short link
-	shortLink := linkExchanger.GenerateShortLink(originalURL, name, owner)
+	shortLink, err := linkExchanger.GenerateShortLink(originalURL, backhalf, name, owner)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err,
+		})
+		return
+	}
 
-	// Return the short link as the response
 	c.JSON(http.StatusOK, gin.H{
 		"short_link": shortLink,
 	})
