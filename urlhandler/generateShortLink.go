@@ -30,7 +30,7 @@ func (e *LinkExchanger) GenerateShortLink(originalURL string, name, owner string
 	e.mu.Unlock()
 
 	// Store the mapping in the database
-	err := mongodb.InsertShortLink(uniqueID, originalURL, name)
+	err := mongodb.InsertShortLink(uniqueID, originalURL, name, owner)
 	if err != nil {
 		log.Println("Error inserting URL into database")
 		log.Fatal(err)
@@ -41,7 +41,7 @@ func (e *LinkExchanger) GenerateShortLink(originalURL string, name, owner string
 	var link string
 	if server != "https://short.lugetech.com" {
 		fmt.Println("Using local server with port, if this is running on the remote server it will not work")
-		link = fmt.Sprintf("%s:%s/link?id=%s", server, port, uniqueID)
+		link = fmt.Sprintf("%s:%s/%s", server, port, uniqueID)
 	} else {
 		link = fmt.Sprintf("%s/link?id=%s", server, uniqueID)
 	}

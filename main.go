@@ -19,7 +19,7 @@ import (
 	"golang.org/x/image/bmp"
 )
 
-var limiter = ratelimiter.NewIPRateLimiter(1)
+var limiter = ratelimiter.NewIPRateLimiter(5)
 
 func init() {
 	image.RegisterFormat("bmp", "bmp", bmp.Decode, bmp.DecodeConfig)
@@ -67,9 +67,20 @@ func main() {
 	})
 
 	router.POST("/qrcode", routehandlers.GetQr)
+	router.POST("/getlink", routehandlers.GetShortLink)
 	router.GET("/qr", routehandlers.HandleScan)
-	router.GET("/qr", routehandlers.HandleLinkClick)
 	router.GET("/qrcode-details", mongodb.GetInteractionsForQRCode)
+	router.GET("/short_link-details", mongodb.GetInteractionsForQRCode)
+
+	// Catch-all route for unmatched paths
+	router.NoRoute(func(c *gin.Context) {
+		// Handle unmatched routes here
+		// Redirect to the root path "/"
+		c.Redirect(http.StatusMovedPermanently, "/")
+	})
+
+	// Handle the root path "/"
+	router.GET("/", routehandlers.HandleLinkClick)
 
 	router.Run(":" + port)
 }

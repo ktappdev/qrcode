@@ -15,14 +15,14 @@ import (
 )
 
 // InsertShortLink inserts a new short link mapping into the database
-func InsertShortLink(uniqueId, originalUrl, name string) error {
+func InsertShortLink(uniqueId, originalURL, name, owner string) error {
 	shortLink := ShortLink{
 		Type:        "shortlink",
 		CreatedAt:   time.Now().Format(time.RFC3339),
 		ID:          uniqueId,
-		OriginalURL: originalUrl,
-		Name:        "",
-		Owner:       "",
+		OriginalURL: originalLinkEmpty(originalURL, "https://592code.vercel.app/empty"),
+		Name:        name,
+		Owner:       owner,
 	}
 
 	// Get a handle to the "short_links" collection in the database

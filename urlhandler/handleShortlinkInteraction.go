@@ -11,6 +11,8 @@ import (
 )
 
 func (e *LinkExchanger) HandleShortLinkInteraction(c *gin.Context) {
+	path := c.Param("path")
+	log.Println("this is thepath param fort the link", path)
 	clientIP := c.ClientIP()
 	geoIP, err := geoip.New("./geo-lite/GeoLite2-City.mmdb")
 	if err != nil {
@@ -27,31 +29,31 @@ func (e *LinkExchanger) HandleShortLinkInteraction(c *gin.Context) {
 		return
 	}
 
-	uniqueID := c.Query("id")
+	// uniqueID := c.Query("id")
 
 	e.mu.RLock()
-	originalURL, exists := e.linksMap[uniqueID]
+	originalURL, exists := e.linksMap[path]
 	e.mu.RUnlock()
 
 	if exists {
 		// Mapping found in the in-memory map
-		go mongodb.LogShortLinkInteraction(uniqueID, c, locationData)
+		go mongodb.LogShortLinkInteraction(path, c, locationData)
 		log.Println("this is the link returned from in-memory", originalURL)
 		c.Redirect(http.StatusFound, originalURL)
 		return
 	}
 
 	// Mapping not found in the in-memory map, check the database
-	originalURL, err = mongodb.GetShortLink(uniqueID)
+	originalURL, err = mongodb.GetShortLink(path)
 	if err == nil {
 		// Mapping found in the database
-		go mongodb.LogShortLinkInteraction(uniqueID, c, locationData)
+		go mongodb.LogShortLinkInteraction(path, c, locationData)
 		log.Println("this is the link returned from mongodb", originalURL)
 		c.Redirect(http.StatusFound, originalURL)
 		return
 	}
 
 	// Mapping not found in the in-memory map or the database
-	fmt.Printf("%s NOT FOUND IN MEMORY OR DATABASE", uniqueID)
+	fmt.Printf("%s NOT FOUND IN MEMORY OR DATABASE", path)
 	c.Status(http.StatusNotFound)
 }
