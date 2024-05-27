@@ -45,7 +45,7 @@ func (e *LinkExchanger) GenerateShortLink(originalURL, backhalf, name, owner str
 	log.Println("list of Short Links:", e.linksMap)
 
 	var link string
-	if server != "https://short.lugetech.com" {
+	if server != "https://gr.lugetech.com" {
 		fmt.Println("Using local server with port, if this is running on the remote server it will not work")
 		link = fmt.Sprintf("%s:%s/%s", server, port, uniqueID)
 	} else {
