@@ -3,18 +3,11 @@ package urlhandler
 import (
 	"fmt"
 	"log"
-	"os"
 	"sync"
 
 	"github.com/google/uuid"
 	"github.com/ktappdev/qrcode-server/mongodb"
 )
-
-func getEnvItems() (port string, server string) {
-	port = os.Getenv("PORT")
-	server = os.Getenv("SERVER")
-	return port, server
-}
 
 type URLExchanger struct {
 	mu            sync.RWMutex
@@ -28,7 +21,7 @@ func NewURLExchanger() *URLExchanger {
 }
 
 func (e *URLExchanger) GenerateQRCodeURL(originalLink string, backgroundColour, qrCodeColour string, name string) string {
-	port, server := getEnvItems()
+	port, server := GetEnvItems()
 	uniqueID := uuid.New().String()
 
 	//NOTE: Store the mapping in the Map (Keeping this for speed)

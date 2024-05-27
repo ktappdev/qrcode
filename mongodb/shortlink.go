@@ -8,32 +8,30 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/ktappdev/qrcode-server/helpers"
 	"github.com/oschwald/geoip2-golang"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// InsertQRCodeURL inserts a new QR code URL mapping into the database
-func InsertQRCodeURL(id, originalLink string, backgroundColour, qrCodeColour string, name string) error {
-	foregroundHex, backgroundHex := helpers.SetColours(backgroundColour, qrCodeColour)
-	timestamp := time.Now().Format(time.RFC3339)
-	qrCodeURL := QRCodeURL{
-		ID:            id,
-		OriginalURL:   originalLinkEmpty(originalLink, "https://592code.vercel.app/empty"),
-		ForegroundHex: foregroundHex,
-		BackgroundHex: backgroundHex,
-		Name:          name,
-		Type:          "qrcode",
-		CreatedAt:     timestamp,
+// InsertShortLink inserts a new short link mapping into the database
+func InsertShortLink(uniqueId, originalUrl, name string) error {
+	shortLink := ShortLink{
+		Type:        "shortlink",
+		CreatedAt:   time.Now().Format(time.RFC3339),
+		ID:          uniqueId,
+		OriginalURL: originalUrl,
+		Name:        "",
+		Owner:       "",
 	}
 
-	// Get a handle to the "qr_code_urls" collection in the database
-	collection := client.Database("qr").Collection("qr_codes")
-	filter := bson.M{"_id": id}
-	update := bson.M{"$set": qrCodeURL}
+	// Get a handle to the "short_links" collection in the database
+	collection := client.Database("links").Collection("short_links")
+
+	filter := bson.M{"_id": shortLink.ID}
+	update := bson.M{"$set": shortLink}
 	upsert := true // Create a boolean variable
+
 	opts := options.UpdateOptions{
 		Upsert: &upsert, // Pass the pointer to the boolean variable
 	}
@@ -43,19 +41,19 @@ func InsertQRCodeURL(id, originalLink string, backgroundColour, qrCodeColour str
 		return err
 	}
 
-	log.Printf("Inserted or updated QR Code URL: %+v", qrCodeURL)
+	log.Printf("Inserted or updated Short Link: %+v", shortLink)
 	return nil
 }
 
-// GetQRCodeURL retrieves the original URL for a given QR code ID
-func GetQRCodeURL(id string) (string, error) {
-	collection := client.Database("qr").Collection("qr_codes")
+// GetShortLink retrieves the original URL for a given short link ID
+func GetShortLink(id string) (string, error) {
+	collection := client.Database("links").Collection("short_links")
 
 	// Create a variable to hold the retrieved document
-	var qrCodeURL QRCodeURL
+	var shortLink ShortLink
 
-	// Find the document with the given ID and decode it into the qrCodeURL variable
-	err := collection.FindOne(context.Background(), bson.M{"_id": id}).Decode(&qrCodeURL)
+	// Find the document with the given ID and decode it into the shortLink variable
+	err := collection.FindOne(context.Background(), bson.M{"_id": id}).Decode(&shortLink)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			return "", nil // Return an empty string if the document is not found
@@ -63,10 +61,10 @@ func GetQRCodeURL(id string) (string, error) {
 		return "", err
 	}
 
-	return qrCodeURL.OriginalURL, nil
+	return shortLink.OriginalURL, nil
 }
 
-func LogQRCodeInteraction(qrCodeID string, c *gin.Context, locationData *geoip2.City) error {
+func LogShortLinkInteraction(shortLinkID string, c *gin.Context, locationData *geoip2.City) error {
 	timestamp := time.Now().Format(time.RFC3339)
 	userAgent := c.Request.UserAgent()
 	ipAddress := c.ClientIP()
@@ -93,22 +91,23 @@ func LogQRCodeInteraction(qrCodeID string, c *gin.Context, locationData *geoip2.
 		Regions:        regions,
 	}
 
-	interaction := QRCodeInteraction{
-		ID:        uuid.New().String(),
-		QRCodeID:  qrCodeID,
-		Timestamp: timestamp,
-		UserAgent: userAgent,
-		IPAddress: ipAddress,
-		Referer:   referer,
-		Location:  location,
+	interaction := ShortLinkInteraction{
+		ID:          uuid.New().String(),
+		ShortLinkID: shortLinkID,
+		Timestamp:   timestamp,
+		UserAgent:   userAgent,
+		IPAddress:   ipAddress,
+		Referer:     referer,
+		Location:    location,
 	}
 
-	collection := client.Database("qr").Collection("qr_code_details")
+	collection := client.Database("links").Collection("short_link_details")
+
 	_, err := collection.InsertOne(context.Background(), interaction)
 	if err != nil {
 		return err
 	}
 
-	log.Printf("Logged QR Code Interaction: %+v", interaction)
+	log.Printf("Logged Short Link Interaction: %+v", interaction)
 	return nil
 }

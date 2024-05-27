@@ -68,6 +68,7 @@ func main() {
 
 	router.POST("/qrcode", routehandlers.GetQr)
 	router.GET("/qr", routehandlers.HandleScan)
+	router.GET("/qr", routehandlers.HandleLinkClick)
 	router.GET("/qrcode-details", mongodb.GetInteractionsForQRCode)
 
 	router.Run(":" + port)
