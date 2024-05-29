@@ -9,8 +9,8 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/ktappdev/qrcode-server/generator"
 	"github.com/ktappdev/qrcode-server/helpers"
-	"github.com/ktappdev/qrcode-server/qrcode"
 )
 
 func GetWifiQR(c *gin.Context) {
@@ -28,6 +28,7 @@ func GetWifiQR(c *gin.Context) {
 	qrCodeColour := c.PostForm("qrCodeColour")
 	backgroundColour := c.PostForm("backgroundColour")
 	name := c.PostForm("name")
+	useDots := c.PostForm("useDots") == "true"
 
 	// Get the logo image from the form data
 	logoFile, err := c.FormFile("logo")
@@ -66,7 +67,7 @@ func GetWifiQR(c *gin.Context) {
 
 	size := 256
 	qrCodeURL := exchanger.GenerateQRCodeURL(wifiQRData, backgroundColour, qrCodeColour, name)
-	qrCodeBytes, err := qrcode.GenerateQRCode(qrCodeURL, size, qrCodeColour, backgroundColour, logo, opacityFloat64)
+	qrCodeBytes, err := generator.GenerateQRCode(qrCodeURL, size, qrCodeColour, backgroundColour, logo, opacityFloat64, useDots)
 	if err != nil {
 		c.String(http.StatusInternalServerError, "Error generating QR code")
 		return
