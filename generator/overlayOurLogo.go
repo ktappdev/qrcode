@@ -8,7 +8,7 @@ import (
 	"github.com/ktappdev/qrcode-server/helpers"
 )
 
-func overlayOurLogo(qrImg image.Image, overlayShrink int) (image.Image, error) {
+func overlayOurLogoFunc(qrImg image.Image, overlayShrink int) (image.Image, error) {
 	// Open the logo file
 	//TODO: make this dynamic when i have other qr sizes
 	file, err := os.Open("assets/512_logo_overlay.png")

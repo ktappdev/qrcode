@@ -18,10 +18,9 @@ func GenerateQRCode(
 	logo *image.Image,
 	opacity float64,
 	useDots string,
-	overLayOurLogo string,
+	overlayOurLogo string,
 	overlayShrink int,
 ) ([]byte, error) {
-	overLayOurLogo = "true" //NOTE: This will be based around your account perks
 	var qr *qrcode.QRCode
 	var qrBytes []byte
 	var qrImg image.Image
@@ -67,8 +66,8 @@ func GenerateQRCode(
 	}
 
 	// Overlay your logo if overLayOurLogo is true
-	if overLayOurLogo == "true" {
-		qrImg, err = overlayOurLogo(qrImg, 1)
+	if overlayOurLogo == "true" {
+		qrImg, err = overlayOurLogoFunc(qrImg, 1)
 		if err != nil {
 			return nil, err
 		}

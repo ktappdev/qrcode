@@ -3,6 +3,7 @@ package routehandlers
 import (
 	_ "image/jpeg"
 	_ "image/png"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -25,7 +26,8 @@ func GetQr(c *gin.Context) {
 	qrCodeColour := c.PostForm("qrCodeColour")
 	name := c.PostForm("name")
 	useDots := c.PostForm("useDots")
-	overLayOurLogo := c.PostForm("overLayOurLogo")
+	overlayOurLogo := c.PostForm("overlayOurLogo")
+	log.Println("overlayyyy", overlayOurLogo)
 
 	// Convert the opacity to a float64
 	opacityFloat64, err := helpers.ParseOpacity(opacity)
@@ -54,7 +56,7 @@ func GetQr(c *gin.Context) {
 		logo,
 		opacityFloat64,
 		useDots,
-		overLayOurLogo,
+		overlayOurLogo,
 		0,
 	)
 	if err != nil {
