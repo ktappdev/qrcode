@@ -10,7 +10,12 @@ import (
 )
 
 // drawQRCodeWithDots draws the QR code with dots
-func drawQRCodeWithDots(qr *qrcode.QRCode, size int, foregroundColor color.Color, backgroundColor color.Color) ([]byte, error) {
+func drawQRCodeWithDots(
+	qr *qrcode.QRCode,
+	size int,
+	foregroundColor color.Color,
+	backgroundColor color.Color,
+) ([]byte, error) {
 	dotSize := size / len(qr.Bitmap())
 	dc := gg.NewContext(size, size)
 
@@ -18,10 +23,8 @@ func drawQRCodeWithDots(qr *qrcode.QRCode, size int, foregroundColor color.Color
 	dc.SetColor(backgroundColor)
 	dc.Clear()
 
-	// Set foreground color
 	dc.SetColor(foregroundColor)
 
-	// Draw the QR code with dots
 	matrix := qr.Bitmap()
 	for y := 0; y < len(matrix); y++ {
 		for x := 0; x < len(matrix); x++ {

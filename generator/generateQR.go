@@ -17,11 +17,14 @@ func GenerateQRCode(
 	backgroundColour string,
 	logo *image.Image,
 	opacity float64,
-	useDots bool,
+	useDots string,
+	overLayOurLogo string,
+	overlayShrink int,
 ) ([]byte, error) {
-	log.Println("this is generate and the use dots is", useDots)
+	overLayOurLogo = "true" //NOTE: This will be based around your account perks
 	var qr *qrcode.QRCode
 	var qrBytes []byte
+	var qrImg image.Image
 	if logo != nil {
 		qr, _ = qrcode.New(data, qrcode.High) // NOTE: can also set Highest
 		log.Println("Logo is present in the generate function")
@@ -44,31 +47,39 @@ func GenerateQRCode(
 	qr.ForegroundColor = foregroundColor
 	qr.BackgroundColor = backgroundColor
 
-	if useDots {
-		log.Println("Dots are being used")
-		qrBytes, err = drawQRCodeWithDots(qr, size, foregroundColor, backgroundColor)
+	if useDots == "true" {
+		qrBytes, err := drawQRCodeWithDots(qr, size, foregroundColor, backgroundColor)
+		if err != nil {
+			return nil, err
+		}
+		qrImg, _, err = image.Decode(bytes.NewReader(qrBytes))
 		if err != nil {
 			return nil, err
 		}
 	} else {
 		// Generate the QR code image
-		qrImg := qr.Image(size)
+		qrImg = qr.Image(size)
+	}
 
-		// Overlay the logo image if provided
-		if logo != nil {
-			log.Println("Logo is present and about to overlay")
-			helpers.OverlayLogo(&qrImg, *logo, opacity)
-		}
+	// Overlay the logo image if provided
+	if logo != nil {
+		helpers.OverlayLogo(&qrImg, *logo, opacity, 3)
+	}
 
-		log.Println("this is after overlay and about to encode png")
-		buf := &bytes.Buffer{}
-		err = png.Encode(buf, qrImg)
+	// Overlay your logo if overLayOurLogo is true
+	if overLayOurLogo == "true" {
+		qrImg, err = overlayOurLogo(qrImg, 1)
 		if err != nil {
 			return nil, err
 		}
-
-		qrBytes = buf.Bytes()
 	}
+
+	buf := &bytes.Buffer{}
+	err = png.Encode(buf, qrImg)
+	if err != nil {
+		return nil, err
+	}
+	qrBytes = buf.Bytes()
 
 	return qrBytes, nil
 }

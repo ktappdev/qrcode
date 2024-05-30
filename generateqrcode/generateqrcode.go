@@ -43,7 +43,7 @@ func GenerateQRCode(data string, size int, qrCodeColour string, backgroundColour
 	// Overlay the logo image if provided
 	if logo != nil {
 		log.Println("Logo is present and about to overlay")
-		helpers.OverlayLogo(&qrImg, *logo, opacity)
+		helpers.OverlayLogo(&qrImg, *logo, opacity, 3)
 	}
 
 	log.Println("this is after overlay and about to encode png")

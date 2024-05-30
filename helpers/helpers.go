@@ -21,7 +21,7 @@ func ParseOpacity(opacityStr string) (float64, error) {
 	return wholeNumber / 100, err
 }
 
-func OverlayLogo(qrImg *image.Image, logo image.Image, opacity float64) {
+func OverlayLogo(qrImg *image.Image, logo image.Image, opacity float64, overlayShrink int) {
 	// Calculate the center position of the QR code
 	qrBounds := (*qrImg).Bounds()
 	qrWidth := qrBounds.Max.X - qrBounds.Min.X
@@ -35,8 +35,8 @@ func OverlayLogo(qrImg *image.Image, logo image.Image, opacity float64) {
 	logoHeight := logoBounds.Max.Y - logoBounds.Min.Y
 
 	// Calculate the desired logo size (1/10th of QR code size)
-	desiredLogoWidth := qrWidth / 3
-	desiredLogoHeight := qrHeight / 3
+	desiredLogoWidth := qrWidth / overlayShrink
+	desiredLogoHeight := qrHeight / overlayShrink
 
 	// Create a new image with the adjusted logo size
 	newLogoWidth, newLogoHeight := desiredLogoWidth, desiredLogoHeight

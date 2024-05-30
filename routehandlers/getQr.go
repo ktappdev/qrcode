@@ -24,7 +24,8 @@ func GetQr(c *gin.Context) {
 	backgroundColour := c.PostForm("backgroundColour")
 	qrCodeColour := c.PostForm("qrCodeColour")
 	name := c.PostForm("name")
-	useDots := c.PostForm("useDots") == "true"
+	useDots := c.PostForm("useDots")
+	overLayOurLogo := c.PostForm("overLayOurLogo")
 
 	// Convert the opacity to a float64
 	opacityFloat64, err := helpers.ParseOpacity(opacity)
@@ -39,8 +40,23 @@ func GetQr(c *gin.Context) {
 	}
 
 	size := 512 // -10 will make each qr pixel 10x10, i can do 256 which would give 256x256px image but there is usually white space around it
-	qrCodeURL := exchanger.GenerateQRCodeURL(originalLink, backgroundColour, qrCodeColour, name)
-	qrCodeBytes, err := generator.GenerateQRCode(qrCodeURL, size, qrCodeColour, backgroundColour, logo, opacityFloat64, useDots)
+	qrCodeURL := exchanger.GenerateQRCodeURL(
+		originalLink,
+		backgroundColour,
+		qrCodeColour,
+		name,
+	)
+	qrCodeBytes, err := generator.GenerateQRCode(
+		qrCodeURL,
+		size,
+		qrCodeColour,
+		backgroundColour,
+		logo,
+		opacityFloat64,
+		useDots,
+		overLayOurLogo,
+		0,
+	)
 	if err != nil {
 		c.String(http.StatusInternalServerError, "Error generating QR code")
 		return

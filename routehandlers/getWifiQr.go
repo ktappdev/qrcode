@@ -28,7 +28,8 @@ func GetWifiQR(c *gin.Context) {
 	qrCodeColour := c.PostForm("qrCodeColour")
 	backgroundColour := c.PostForm("backgroundColour")
 	name := c.PostForm("name")
-	useDots := c.PostForm("useDots") == "true"
+	useDots := c.PostForm("useDots")
+	overLayOurLogo := c.PostForm("overLayOurLogo")
 
 	// Get the logo image from the form data
 	logoFile, err := c.FormFile("logo")
@@ -65,9 +66,24 @@ func GetWifiQR(c *gin.Context) {
 		logo = &decodedLogo
 	}
 
-	size := 256
-	qrCodeURL := exchanger.GenerateQRCodeURL(wifiQRData, backgroundColour, qrCodeColour, name)
-	qrCodeBytes, err := generator.GenerateQRCode(qrCodeURL, size, qrCodeColour, backgroundColour, logo, opacityFloat64, useDots)
+	size := 512
+	qrCodeURL := exchanger.GenerateQRCodeURL(
+		wifiQRData,
+		backgroundColour,
+		qrCodeColour,
+		name,
+	)
+	qrCodeBytes, err := generator.GenerateQRCode(
+		qrCodeURL,
+		size,
+		qrCodeColour,
+		backgroundColour,
+		logo,
+		opacityFloat64,
+		useDots,
+		overLayOurLogo,
+		0,
+	)
 	if err != nil {
 		c.String(http.StatusInternalServerError, "Error generating QR code")
 		return
