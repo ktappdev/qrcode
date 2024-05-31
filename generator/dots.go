@@ -22,14 +22,16 @@ func drawQRCodeWithDots(
 	// Set background color
 	dc.SetColor(backgroundColor)
 	dc.Clear()
-
 	dc.SetColor(foregroundColor)
 
 	matrix := qr.Bitmap()
-	for y := 0; y < len(matrix); y++ {
-		for x := 0; x < len(matrix); x++ {
+	matrixSize := len(matrix)
+	offset := (size - matrixSize*dotSize) / 2
+
+	for y := 0; y < matrixSize; y++ {
+		for x := 0; x < matrixSize; x++ {
 			if matrix[y][x] {
-				dc.DrawCircle(float64(x*dotSize+dotSize/2), float64(y*dotSize+dotSize/2), float64(dotSize/2))
+				dc.DrawCircle(float64(x*dotSize+dotSize/2+offset), float64(y*dotSize+dotSize/2+offset), float64(dotSize/2))
 				dc.Fill()
 			}
 		}
@@ -41,6 +43,5 @@ func drawQRCodeWithDots(
 	if err != nil {
 		return nil, err
 	}
-
 	return buf.Bytes(), nil
 }
