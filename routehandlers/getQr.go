@@ -3,6 +3,7 @@ package routehandlers
 import (
 	_ "image/jpeg"
 	_ "image/png"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -31,6 +32,7 @@ func GetQr(c *gin.Context) {
 
 	// Convert the opacity to a float64
 	opacityFloat64, err := helpers.ParseOpacity(formData.Opacity)
+	formData.Opacityf64 = opacityFloat64
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid opacity value"})
 		return
@@ -45,15 +47,12 @@ func GetQr(c *gin.Context) {
 
 	size := 512 // -10 will make each qr pixel 10x10, i can do 256 which would give 256x256px image but there is usually white space around it
 	qrCodeURL := exchanger.GenerateQRCodeURL(&formData)
+	log.Println("qrCodeURL in getQr: ", qrCodeURL)
 	qrCodeBytes, err := generator.GenerateQRCode(
 		qrCodeURL,
 		size,
-		formData.QRCodeColour,
-		formData.BackgroundColour,
+		&formData,
 		logo,
-		opacityFloat64,
-		formData.UseDots,
-		formData.OverlayOurLogo,
 		0,
 	)
 	if err != nil {

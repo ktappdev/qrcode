@@ -2,7 +2,6 @@ package urlhandler
 
 import (
 	"fmt"
-	"log"
 	"sync"
 
 	"github.com/ktappdev/qrcode-server/helpers"
@@ -41,8 +40,6 @@ func (e *LinkExchanger) GenerateShortLink(originalURL, backhalf, name, owner str
 		return "Error inserting URL into database", err
 
 	}
-
-	log.Println("list of Short Links:", e.linksMap)
 
 	var link string
 	if server != "https://gr.lugetech.com" {

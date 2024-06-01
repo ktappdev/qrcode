@@ -11,33 +11,28 @@ import (
 )
 
 func GenerateQRCode(
-	data string,
+	qrCodeUrl string,
 	size int,
-	qrCodeColour string,
-	backgroundColour string,
+	formData *helpers.FormDataStruct,
 	logo *image.Image,
-	opacity float64,
-	useDots string,
-	overlayOurLogo string,
 	overlayShrink int,
 ) ([]byte, error) {
 	var qr *qrcode.QRCode
 	var qrBytes []byte
 	var qrImg image.Image
 	if logo != nil {
-		qr, _ = qrcode.New(data, qrcode.High) // NOTE: can also set Highest
+		qr, _ = qrcode.New(qrCodeUrl, qrcode.High) // NOTE: can also set Highest
 		log.Println("Logo is present in the generate function")
 	} else {
-		qr, _ = qrcode.New(data, qrcode.Low)
+		qr, _ = qrcode.New(qrCodeUrl, qrcode.Low)
 	}
 
-	bgcHEX, qrcHEX := helpers.SetColours(backgroundColour, qrCodeColour)
-	foregroundColor, err := helpers.HexToColor(qrcHEX)
+	foregroundColor, err := helpers.HexToColor(formData.QRCodeColour)
 	if err != nil {
 		// Handle the error
 		return nil, err
 	}
-	backgroundColor, err := helpers.HexToColor(bgcHEX)
+	backgroundColor, err := helpers.HexToColor(formData.BackgroundColour)
 	if err != nil {
 		// Handle the error
 		return nil, err
@@ -46,7 +41,7 @@ func GenerateQRCode(
 	qr.ForegroundColor = foregroundColor
 	qr.BackgroundColor = backgroundColor
 
-	if useDots == "true" {
+	if formData.UseDots == "true" {
 		qrBytes, err := drawQRCodeWithDots(qr, size, foregroundColor, backgroundColor)
 		if err != nil {
 			return nil, err
@@ -62,11 +57,11 @@ func GenerateQRCode(
 
 	// Overlay the logo image if provided
 	if logo != nil {
-		helpers.OverlayLogo(&qrImg, *logo, opacity, 3)
+		helpers.OverlayLogo(&qrImg, *logo, formData.Opacityf64, 3)
 	}
 
 	// Overlay your logo if overLayOurLogo is true
-	if overlayOurLogo == "true" {
+	if formData.OverlayOurLogo == "true" {
 		qrImg, err = overlayOurLogoFunc(qrImg, 1)
 		if err != nil {
 			return nil, err

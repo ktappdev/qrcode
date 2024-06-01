@@ -22,6 +22,7 @@ func NewURLExchanger() *URLExchanger {
 }
 
 func (e *URLExchanger) GenerateQRCodeURL(formData *helpers.FormDataStruct) string {
+	log.Println("GenerateQRCodeURL ******", formData)
 	port, server := GetEnvItems()
 	uniqueID := uuid.New().String()
 
@@ -43,7 +44,6 @@ func (e *URLExchanger) GenerateQRCodeURL(formData *helpers.FormDataStruct) strin
 		log.Fatal(err)
 	}
 
-	log.Println("list of QR Codes:", e.qrCodeURLsMap)
 	var link string
 	if server != "https://qr.lugetech.com" {
 		fmt.Println("Using local server with port, if this is running on the remote server it will not work")
