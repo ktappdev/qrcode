@@ -53,7 +53,7 @@ func main() {
 	router.MaxMultipartMemory = 10 << 20 // 10MB
 
 	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{"*"}
+	config.AllowOrigins = []string{"*", "https://592code.vercel.app"}
 	config.AllowMethods = []string{"GET", "POST"}
 	router.Use(cors.New(config))
 
