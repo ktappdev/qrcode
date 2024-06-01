@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/google/uuid"
+	"github.com/ktappdev/qrcode-server/helpers"
 	"github.com/ktappdev/qrcode-server/mongodb"
 )
 
@@ -20,17 +21,23 @@ func NewURLExchanger() *URLExchanger {
 	}
 }
 
-func (e *URLExchanger) GenerateQRCodeURL(originalLink string, backgroundColour, qrCodeColour string, name string) string {
+func (e *URLExchanger) GenerateQRCodeURL(formData *helpers.FormDataStruct) string {
 	port, server := GetEnvItems()
 	uniqueID := uuid.New().String()
 
 	//NOTE: Store the mapping in the Map (Keeping this for speed)
 	e.mu.Lock()
-	e.qrCodeURLsMap[uniqueID] = originalLink
+	e.qrCodeURLsMap[uniqueID] = formData.OriginalLink
 	e.mu.Unlock()
 
 	//NOTE: Store the mapping in the database
-	err := mongodb.InsertQRCodeURL(uniqueID, originalLink, backgroundColour, qrCodeColour, name)
+	err := mongodb.InsertQRCodeURL(
+		uniqueID,
+		formData.OriginalLink,
+		formData.BackgroundColour,
+		formData.QRCodeColour,
+		formData.Name,
+	)
 	if err != nil {
 		log.Println("Error inserting URL into database")
 		log.Fatal(err)

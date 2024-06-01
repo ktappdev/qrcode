@@ -13,19 +13,9 @@ import (
 
 var exchanger = urlhandler.NewURLExchanger()
 
-type FormData struct {
-	OriginalLink     string
-	Opacity          string
-	BackgroundColour string
-	QRCodeColour     string
-	Name             string
-	UseDots          string
-	OverlayOurLogo   string
-}
-
 func GetQr(c *gin.Context) {
 	// Parse form data into FormData struct
-	formData := FormData{
+	formData := helpers.FormDataStruct{
 		OriginalLink:     c.PostForm("originalLink"),
 		Opacity:          c.PostForm("opacity"),
 		BackgroundColour: c.PostForm("backgroundColour"),
@@ -54,12 +44,7 @@ func GetQr(c *gin.Context) {
 	}
 
 	size := 512 // -10 will make each qr pixel 10x10, i can do 256 which would give 256x256px image but there is usually white space around it
-	qrCodeURL := exchanger.GenerateQRCodeURL(
-		formData.OriginalLink,
-		formData.BackgroundColour,
-		formData.QRCodeColour,
-		formData.Name,
-	)
+	qrCodeURL := exchanger.GenerateQRCodeURL(&formData)
 	qrCodeBytes, err := generator.GenerateQRCode(
 		qrCodeURL,
 		size,
