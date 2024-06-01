@@ -85,17 +85,16 @@ func SetColours(backgroundColour, qrCodeColour string) (bgHex, qrHex string) {
 		log.Println("Error validating background colour")
 		log.Fatal(err)
 	}
-
 	qrHex, err = IsValidHexColor(qrCodeColour)
 	if err != nil {
 		log.Println("Error validating qr code colour")
 		log.Fatal(err)
 	}
-
 	return bgHex, qrHex
 }
 
 func IsValidHexColor(s string) (string, error) {
+	log.Print(s)
 	if !strings.HasPrefix(s, "#") {
 		return "", fmt.Errorf("invalid hex color string: %s", s)
 	}
@@ -124,7 +123,7 @@ func HexToColor(hexString string) (color.Color, error) {
 	var err error
 
 	switch len(hexString) {
-	case 3: // e.g., #RGB
+	case 3:
 		r, err = hexToByte(hexString[0:1] + hexString[0:1])
 		if err != nil {
 			return nil, err
@@ -138,7 +137,7 @@ func HexToColor(hexString string) (color.Color, error) {
 			return nil, err
 		}
 		a = 0xff
-	case 4: // e.g., #RGBA
+	case 4:
 		r, err = hexToByte(hexString[0:1] + hexString[0:1])
 		if err != nil {
 			return nil, err
@@ -155,7 +154,7 @@ func HexToColor(hexString string) (color.Color, error) {
 		if err != nil {
 			return nil, err
 		}
-	case 6: // e.g., #RRGGBB
+	case 6:
 		r, err = hexToByte(hexString[0:2])
 		if err != nil {
 			return nil, err
@@ -169,7 +168,7 @@ func HexToColor(hexString string) (color.Color, error) {
 			return nil, err
 		}
 		a = 0xff
-	case 8: // e.g., #RRGGBBAA
+	case 8:
 		r, err = hexToByte(hexString[0:2])
 		if err != nil {
 			return nil, err
