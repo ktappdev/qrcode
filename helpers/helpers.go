@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"image"
 	"image/color"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -78,38 +79,39 @@ func OverlayLogo(qrImg *image.Image, logo image.Image, opacity float64, overlayS
 	newLogo = nil
 }
 
-var ColorMap = map[string]string{
-	"red":       "#FF0000",
-	"green":     "#00FF00",
-	"blue":      "#0000FF",
-	"purple":    "#800080",
-	"orange":    "#FFA500",
-	"pink":      "#FF69B4",
-	"brown":     "#A52A2A",
-	"gray":      "#808080",
-	"black":     "#000000",
-	"white":     "#FFFFFF",
-	"turquoise": "#40E0D0",
-	"indigo":    "#4B0082",
-	"maroon":    "#800000",
-	"lime":      "#00FF00",
-	"teal":      "#008080",
-}
-
 func SetColours(backgroundColour, qrCodeColour string) (bgHex, qrHex string) {
-	bgHex, ok := ColorMap[backgroundColour]
-	if !ok {
-		bgHex = ColorMap["white"]
-		qrHex = ColorMap["black"]
+	bgHex, err := IsValidHexColor(backgroundColour)
+	if err != nil {
+		log.Println("Error validating background colour")
+		log.Fatal(err)
 	}
 
-	qrHex, ok = ColorMap[qrCodeColour]
-	if !ok {
-		qrHex = ColorMap["black"]
-		bgHex = ColorMap["white"]
+	qrHex, err = IsValidHexColor(qrCodeColour)
+	if err != nil {
+		log.Println("Error validating qr code colour")
+		log.Fatal(err)
 	}
 
 	return bgHex, qrHex
+}
+
+func IsValidHexColor(s string) (string, error) {
+	if !strings.HasPrefix(s, "#") {
+		return "", fmt.Errorf("invalid hex color string: %s", s)
+	}
+	s = s[1:]
+
+	if len(s) != 3 && len(s) != 6 {
+		return "", fmt.Errorf("invalid hex color string length: %s", s)
+	}
+
+	for _, char := range s {
+		if !((char >= '0' && char <= '9') || (char >= 'a' && char <= 'f') || (char >= 'A' && char <= 'F')) {
+			return "", fmt.Errorf("invalid hex color string: %s", s)
+		}
+	}
+
+	return s, nil
 }
 
 func HexToColor(hexString string) (color.Color, error) {

@@ -10,7 +10,14 @@ import (
 	"github.com/skip2/go-qrcode"
 )
 
-func GenerateQRCode(data string, size int, qrCodeColour string, backgroundColour string, logo *image.Image, opacity float64) ([]byte, error) {
+func GenerateQRCode(
+	data string,
+	size int,
+	qrCodeColour string,
+	backgroundColour string,
+	logo *image.Image,
+	opacity float64,
+) ([]byte, error) {
 	var qr *qrcode.QRCode
 	if logo != nil {
 		qr, _ = qrcode.New(data, qrcode.High) // NOTE: can also set Highest
@@ -24,13 +31,11 @@ func GenerateQRCode(data string, size int, qrCodeColour string, backgroundColour
 
 	foregroundColor, err := helpers.HexToColor(qrcHEX)
 	if err != nil {
-		// Handle the error
 		return nil, err
 	}
 
 	backgroundColor, err := helpers.HexToColor(bgcHEX)
 	if err != nil {
-		// Handle the error
 		return nil, err
 	}
 
