@@ -13,27 +13,41 @@ import (
 
 var exchanger = urlhandler.NewURLExchanger()
 
-func GetQr(c *gin.Context) {
+type FormData struct {
+	OriginalLink     string
+	Opacity          string
+	BackgroundColour string
+	QRCodeColour     string
+	Name             string
+	UseDots          string
+	OverlayOurLogo   string
+}
 
-	// Get the original link from the form data
-	originalLink := c.PostForm("originalLink")
-	if originalLink == "https://" {
-		originalLink = ""
+func GetQr(c *gin.Context) {
+	// Parse form data into FormData struct
+	formData := FormData{
+		OriginalLink:     c.PostForm("originalLink"),
+		Opacity:          c.PostForm("opacity"),
+		BackgroundColour: c.PostForm("backgroundColour"),
+		QRCodeColour:     c.PostForm("qrCodeColour"),
+		Name:             c.PostForm("name"),
+		UseDots:          c.PostForm("useDots"),
+		OverlayOurLogo:   c.PostForm("overlayOurLogo"),
 	}
-	opacity := c.PostForm("opacity")
-	backgroundColour := c.PostForm("backgroundColour")
-	qrCodeColour := c.PostForm("qrCodeColour")
-	name := c.PostForm("name")
-	useDots := c.PostForm("useDots")
-	overlayOurLogo := c.PostForm("overlayOurLogo")
+
+	if formData.OriginalLink == "https://" {
+		formData.OriginalLink = ""
+	}
 
 	// Convert the opacity to a float64
-	opacityFloat64, err := helpers.ParseOpacity(opacity)
+	opacityFloat64, err := helpers.ParseOpacity(formData.Opacity)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid opacity value"})
 		return
 	}
-	logo, err := helpers.LoadLogo(c, false) // NOTE: Plugin system for effects later
+
+	// Load logo image
+	logo, err := helpers.LoadLogo(c, true) // NOTE: Plugin system for effects later
 	if err != nil {
 		c.String(http.StatusBadRequest, "Failed to load logo image")
 		return
@@ -41,20 +55,20 @@ func GetQr(c *gin.Context) {
 
 	size := 512 // -10 will make each qr pixel 10x10, i can do 256 which would give 256x256px image but there is usually white space around it
 	qrCodeURL := exchanger.GenerateQRCodeURL(
-		originalLink,
-		backgroundColour,
-		qrCodeColour,
-		name,
+		formData.OriginalLink,
+		formData.BackgroundColour,
+		formData.QRCodeColour,
+		formData.Name,
 	)
 	qrCodeBytes, err := generator.GenerateQRCode(
 		qrCodeURL,
 		size,
-		qrCodeColour,
-		backgroundColour,
+		formData.QRCodeColour,
+		formData.BackgroundColour,
 		logo,
 		opacityFloat64,
-		useDots,
-		overlayOurLogo,
+		formData.UseDots,
+		formData.OverlayOurLogo,
 		0,
 	)
 	if err != nil {
@@ -63,5 +77,4 @@ func GetQr(c *gin.Context) {
 	}
 
 	c.Data(http.StatusOK, "image/png", qrCodeBytes)
-
 }
