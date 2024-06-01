@@ -3,9 +3,9 @@ package urlhandler
 import (
 	"fmt"
 	"log"
-	"math/rand"
 	"sync"
 
+	"github.com/ktappdev/qrcode-server/helpers"
 	"github.com/ktappdev/qrcode-server/mongodb"
 )
 
@@ -26,7 +26,7 @@ func (e *LinkExchanger) GenerateShortLink(originalURL, backhalf, name, owner str
 	if backhalf != "" {
 		uniqueID = backhalf
 	} else {
-		uniqueID = generateUniqueString(4)
+		uniqueID = helpers.GenerateUniqueString(4)
 	}
 
 	// Store the mapping in the Map (Keeping this for speed)
@@ -54,13 +54,4 @@ func (e *LinkExchanger) GenerateShortLink(originalURL, backhalf, name, owner str
 
 	fmt.Println("link", link)
 	return link, nil
-}
-
-func generateUniqueString(length int) string {
-	const charset = "abcdefghijklmnopqrstuvwxyz0123456789"
-	b := make([]byte, length)
-	for i := range b {
-		b[i] = charset[rand.Intn(len(charset))]
-	}
-	return string(b)
 }
