@@ -39,7 +39,7 @@ func GetQr(c *gin.Context) {
 	}
 
 	// Load logo image
-	logo, err := helpers.LoadLogo(c, true) // NOTE: Plugin system for effects later
+	logo, err := helpers.LoadLogo(c, false) // NOTE: Plugin system for effects later - false no effect
 	if err != nil {
 		c.String(http.StatusBadRequest, "Failed to load logo image")
 		return
